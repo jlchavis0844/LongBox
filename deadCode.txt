@@ -1,72 +1,36 @@
-import java.awt.Image;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Scanner;
-
-import javax.imageio.ImageIO;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.mashape.unirest.http.JsonNode;
-
-public class main {
-
-	public main() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public static void main(String[] args) {
-		Scanner in = new Scanner(System.in);
+		/*JsonNode response = new CVrequest().search("Snotgirl");			
+		System.out.println(response.toString());
+		JsonNode response = new CVrequest().search("Snotgirl", 10, "character");
+		System.out.println(response.toString());
+		String[] fields = {"name","start_year","publisher","id","count_of_issues"};
+		JsonNode response = new CVrequest().search("Snotgirl", "volume", 5, fields);
+		System.out.println(response.toString());
+		JSONObject jo = new JSONObject(response);
+		System.out.println(response);*/
+		
+/*		Scanner in = new Scanner(System.in);
 		System.out.println("Enter volume to search for");
 		String input = in.nextLine();
-
 		
-		JSONArray volObj = new CVrequest().searchVolume(input);
-
+		JsonNode volResp = new CVrequest().searchVolume(input);
+		JSONArray volObj = volResp.getObject().getJSONArray("results");
+		
 		for(int i = 0; i < volObj.length(); i++){
 			JSONObject jo = (JSONObject) volObj.get(i);
 			//"name,start_year,publisher,id,count_of_issues"
-			String name, sYear, pub;
-			int id, numIssues;
-			
-			if(!jo.isNull("name"))
-				name = jo.getString("name");
-			else name = "missing";
-			
-			if(!jo.isNull("start_year"))
-				sYear = jo.getString("start_year");
-			else sYear = "missing";
-			
-			if(!jo.isNull("publisher")){
-				JSONObject temp = jo.getJSONObject("publisher");
-				if(!jo.isNull("name"))
-					pub = temp.getString("name");
-				else pub = "missing";
-			} else pub = "missing";
-			
-			if(!jo.isNull("id"))
-				id = jo.getInt("id");
-			else id = 9999999;
-			
-			if(!jo.isNull("count_of_issues"))
-				numIssues = jo.getInt("count_of_issues");
-			else numIssues = -1;
-			
+			String name = jo.getString("name");
+			String sYear = jo.getString("start_year");
+			String pub = jo.getJSONObject("publisher").getString("name");
+			int id = jo.getInt("id");
+			int numIssues = jo.getInt("count_of_issues");
 			System.out.println("name: " + name + "\tstart_year: " + sYear + "\tpublisher: " + pub 
 								+ "\tid: " + id + "\tcount_of_issues: " + numIssues);
-
+			
 		}
-
+		
 		System.out.println("Enter volume id to search issues");
 		 input = in.nextLine();
-
+		 
 		JsonNode response = new CVrequest().getVolumeIDs(input,1);
 		//System.out.println(response);
 
@@ -79,35 +43,35 @@ public class main {
 			JSONObject jImg = (JSONObject) jo.get("image");
 			String name, issueNum;
 			int id;
-			if(!jo.isNull("name")){
+			if(jo.has("name")){
 				name = jo.getString("name");
 			} else name = "no name";
-			if(!jo.isNull("issue_number")){
+			if(jo.has("issue_number")){
+
 				issueNum = jo.getString("issue_number");
 			} else issueNum = "-1";
-
-			if(!jo.isNull("id")){
+			
+			if(jo.has("id")){
 				id = jo.getInt("id");
 			} else id = -1;
 			System.out.println("issue#: " + issueNum + "\tid: " + id + "\t name: " + name); 
-			/*System.out.println("icon_url: " + jImg.get("icon_url"));
+			System.out.println("icon_url: " + jImg.get("icon_url"));
 			System.out.println("thumb_url: " + jImg.get("thumb_url"));
 			System.out.println("tiny_url: " + jImg.get("tiny_url"));
 			System.out.println("small_url: " + jImg.get("small_url"));
 			System.out.println("super_url: " + jImg.get("super_url"));
 			System.out.println("screen_url: " + jImg.get("screen_url"));
-			System.out.println("medium_url: " + jImg.get("medium_url"));*/
+			System.out.println("medium_url: " + jImg.get("medium_url"));
 			System.out.println("***************************END ISSUE**********************************\n\n");
-		}
+		}*/
 		
-		System.out.println("enter issue id");
-		input = in.nextLine();
-		in.close();
-		
-		JSONObject joIssue = new CVrequest().getIssue(input);
-		JSONObject images = joIssue.getJSONObject("image");
+	---------------------------------------------
+			JSONArray jaArray = new CVrequest().searchVolume("Snotgirl");//search for volume
+		//System.out.println(jaArray.toString());
+		JSONObject joImg = jaArray.getJSONObject(0).getJSONObject("image");
+		System.out.println(joImg.toString());
 		try {
-			String urlStr = images.getString("medium_url");
+			String urlStr = joImg.getString("medium_url");
 			URL url = new URL(urlStr);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestProperty(
@@ -117,7 +81,6 @@ public class main {
 			Image img = ImageIO.read(conn.getInputStream());
 			
 			JDialog dialog = new JDialog();
-			//dialog.setModal(true);
 			//dialog.setUndecorated(true);
 			JLabel label = new JLabel((Icon) new ImageIcon(img));
 			dialog.add(label);
@@ -128,6 +91,4 @@ public class main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-}
+	
