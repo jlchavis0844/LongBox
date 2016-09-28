@@ -15,15 +15,10 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  *
  */
 public class CVrequest {
-	private String api_key = "bbfec73a78a7eb3b1c78389c8c13ce66835f5ede";
-	private String baseURL = "http://api.comicvine.com";
-	private JsonNode response;
-	private String limit;
-
-	public CVrequest() {
-		response = null;
-		limit = "10";
-	}
+	private static String api_key = "bbfec73a78a7eb3b1c78389c8c13ce66835f5ede";
+	private static String baseURL = "http://api.comicvine.com";
+	private static JsonNode response = null;
+	private static String limit = "100";
 
 	/**
 	 * Default search, limit is 10, no given resource
@@ -48,7 +43,7 @@ public class CVrequest {
 	 * "count_of_issue_appearances"
 	 * "date_last_updated"
 	 */
-	public JsonNode search(String qString){
+	public static JsonNode search(String qString){
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
@@ -85,7 +80,7 @@ public class CVrequest {
 	 * 	video
 	 * @return JsonNode of the response body, depends on resource
 	 */
-	public JsonNode search(String qString, String rString, int lim, String[] fieldList){
+	public static JsonNode search(String qString, String rString, int lim, String[] fieldList){
 		String fList = "";
 
 		for(int i = 0; i< fieldList.length; i++){
@@ -121,7 +116,7 @@ public class CVrequest {
 	 * @param rString - what resource to search for
 	 * @return JsonNode of the response body, depends on resource
 	 */
-	public JsonNode search(String qString, int limit, String rString){
+	public static JsonNode search(String qString, int limit, String rString){
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
@@ -146,7 +141,7 @@ public class CVrequest {
 	 * name<br>start_year<br>publisher array<br>id<br>count_of_issues<br>image array
 	 * 
 	 */
-	public JSONArray searchVolume(String qString){
+	public static JSONArray searchVolume(String qString){
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
@@ -166,7 +161,7 @@ public class CVrequest {
 		return null;
 	}
 
-	public JsonNode getVolumeInfo(String volID){
+	public static JsonNode getVolumeInfo(String volID){
 		try {
 			String query = "http://comicvine.gamespot.com/api/volume/4050-" + volID;
 			response = Unirest.get(query)
@@ -185,7 +180,7 @@ public class CVrequest {
 		return response;
 	}
 
-	public JsonNode getVolumeIDs(String volID, int pageNum){
+	public static JsonNode getVolumeIDs(String volID, int pageNum){
 		try {
 			response = Unirest.get(baseURL + "/issues")
 					.header("Accept", "application/json")
@@ -205,7 +200,7 @@ public class CVrequest {
 		return response;
 	}
 	
-	public JSONObject getIssue(String issId){
+	public static JSONObject getIssue(String issId){
 		try {
 			String query = "http://comicvine.gamespot.com/api/issue/4000-" + issId;
 			HttpResponse<String> temp = Unirest.get(query)

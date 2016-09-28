@@ -1,4 +1,6 @@
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,7 +30,7 @@ public class main {
 		String input = in.nextLine();
 
 		
-		JSONArray volObj = new CVrequest().searchVolume(input);
+		JSONArray volObj = CVrequest.searchVolume(input);
 
 		for(int i = 0; i < volObj.length(); i++){
 			JSONObject jo = (JSONObject) volObj.get(i);
@@ -59,15 +61,15 @@ public class main {
 				numIssues = jo.getInt("count_of_issues");
 			else numIssues = -1;
 			
-			System.out.println("name: " + name + "\tstart_year: " + sYear + "\tpublisher: " + pub 
-								+ "\tid: " + id + "\tcount_of_issues: " + numIssues);
+			System.out.println("name: " + name + "\t\t\tstart_year: " + sYear + "\tpublisher: " + pub 
+								+ "\t\tid: " + id + "\tcount_of_issues: " + numIssues);
 
 		}
 
 		System.out.println("Enter volume id to search issues");
 		 input = in.nextLine();
 
-		JsonNode response = new CVrequest().getVolumeIDs(input,1);
+		JsonNode response = CVrequest.getVolumeIDs(input,1);
 		//System.out.println(response);
 
 		JSONArray ja = response.getObject().getJSONArray("results");
@@ -76,7 +78,7 @@ public class main {
 		for(int i = 0; i < ja.length(); i++){
 
 			JSONObject jo = (JSONObject) ja.get(i);
-			JSONObject jImg = (JSONObject) jo.get("image");
+			//JSONObject jImg = (JSONObject) jo.get("image");
 			String name, issueNum;
 			int id;
 			if(!jo.isNull("name")){
@@ -104,7 +106,13 @@ public class main {
 		input = in.nextLine();
 		in.close();
 		
-		JSONObject joIssue = new CVrequest().getIssue(input);
+		JSONObject joIssue = CVrequest.getIssue(input);
+		String []names;
+		names = JSONObject.getNames(joIssue);
+		
+		for(String s: names)
+			System.out.println(s + "= " + joIssue.get(s).toString());
+		
 		JSONObject images = joIssue.getJSONObject("image");
 		try {
 			String urlStr = images.getString("medium_url");
@@ -120,7 +128,13 @@ public class main {
 			//dialog.setModal(true);
 			//dialog.setUndecorated(true);
 			JLabel label = new JLabel((Icon) new ImageIcon(img));
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.add(label);
+			dialog.addWindowListener(new WindowAdapter() { 
+			    @Override public void windowClosed(WindowEvent e) { 
+			      System.exit(0);
+			    }
+			  });
 			dialog.pack();
 			dialog.setVisible(true);
 			
