@@ -1,3 +1,4 @@
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -6,16 +7,17 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.HttpRequest;
 
 /**
  * A class to simplify the sending of API requests to the ComicVine API.<br>
  * This class should be called in the following manner:<br>
- * JsonNode = new CVrequest().method("params");<br>
+ * JSONObject = CVrequest.method("params");<br>
  * @author James
  *
  */
 public class CVrequest {
-	private static String api_key = "bbfec73a78a7eb3b1c78389c8c13ce66835f5ede";
+	private static String api_key = "ebae3bcc02357fb42c9408727710be74f12576ce";
 	private static String baseURL = "http://api.comicvine.com";
 	private static JsonNode response = null;
 	private static String limit = "100";
@@ -23,27 +25,12 @@ public class CVrequest {
 	/**
 	 * Default search, limit is 10, no given resource
 	 * @param qString = the term to search for 
-	 * @return JsonNode of the response body, values are:<br>
-	 * image JSON array
-	 * Aliases
-	 * Gender
-	 * "site_detail_url"
-	 * "deck"
-	 * "origin" array
-	 * "resource_type"
-	 * "birth"
-	 * "description"
-	 * "real_name"
-	 * "api_detail_url"
-	 * "date_added"
-	 * "name"
-	 * "publisher" array
-	 * "id"
-	 * "first_appeared_in_issue"
-	 * "count_of_issue_appearances"
-	 * "date_last_updated"
+	 * @return JSONObject of the response body, values are:<br>
+	 * image JSON array<br>Aliases<br>Gender<br>site_detail_url<br>deck<br>origin array<br>
+	 * resource_type<br>birth<br>description<br>real_name<br>api_detail_url<br>date_added<br>name<br>
+	 * "publisher" array<br>id<br>first_appeared_in_issue<br>count_of_issue_appearances<br>date_last_updated<br>
 	 */
-	public static JsonNode search(String qString){
+	public static JSONObject search(String qString){
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
@@ -53,11 +40,12 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", limit)
 					.asJson().getBody();
+			return response.getObject();
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		return null;
 	}
 
 	/**
@@ -66,21 +54,11 @@ public class CVrequest {
 	 * @param rString - String of the resource being searched
 	 * @param limit - int of how many results to return, max of 100
 	 * @param fieldList - Array of Strings of field names to return in addition to header:
-	 * 	character
-	 * 	concept
-	 * 	origin
-	 * 	object
-	 * 	location
-	 * 	issue
-	 * 	story_arc
-	 * 	volume
-	 * 	publisher
-	 * 	person
-	 * 	team
-	 * 	video
+	 * 	character<br>concept<br>origin<br>object<br>location<br>issue<br>story_arc<br>volume<br>publisher<br>
+	 * 	person<br>team<br>video
 	 * @return JsonNode of the response body, depends on resource
 	 */
-	public static JsonNode search(String qString, String rString, int lim, String[] fieldList){
+	public static JSONObject search(String qString, String rString, int lim, String[] fieldList){
 		String fList = "";
 
 		for(int i = 0; i< fieldList.length; i++){
@@ -102,11 +80,12 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", String.valueOf(lim))
 					.asJson().getBody();
+			return response.getObject();
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		return null;
 	}
 
 	/**
@@ -116,7 +95,7 @@ public class CVrequest {
 	 * @param rString - what resource to search for
 	 * @return JsonNode of the response body, depends on resource
 	 */
-	public static JsonNode search(String qString, int limit, String rString){
+	public static JSONObject search(String qString, int limit, String rString){
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
@@ -127,11 +106,12 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", String.valueOf(limit))
 					.asJson().getBody();
+			return response.getObject();
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		return null;
 	}
 
 	/**
@@ -161,7 +141,13 @@ public class CVrequest {
 		return null;
 	}
 
-	public static JsonNode getVolumeInfo(String volID){
+	/**
+	 * Returns infomation for the given Volume ID
+	 * @param volID String of the volume ID
+	 * @return JSONObject with the following fields:<br>
+	 * name<br>start_year<br>publisher<br>image<br>count_of_issues<br>id
+	 */
+	public static JSONObject getVolumeInfo(String volID){
 		try {
 			String query = "http://comicvine.gamespot.com/api/volume/4050-" + volID;
 			response = Unirest.get(query)
@@ -172,43 +158,86 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", "100")
 					.asJson().getBody();
-			return response;
+			return response.getObject();
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		return null;
 	}
 
-	public static JsonNode getVolumeIDs(String volID, int pageNum){
+	/**
+	 * Returns a JSONArray of <b>ALL</b> the issues for a volume
+	 * @param volID - Straing of the unique identifier for the volume you want results for
+	 * @return JSONArray sorted by cover_date (oldest first) with the following fields:<br>
+	 * image json object<br>issue_number<br>id<br>name<br>cover_date
+	 */
+	public static JSONArray getVolumeIDs(String volID){
 		try {
-			response = Unirest.get(baseURL + "/issues")
+			JsonNode jn = Unirest.get(baseURL + "/issues")
 					.header("Accept", "application/json")
 					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("format", "json")
 					.queryString("limit", "100")
-					.queryString("field_list", "name,issue_number,id,image")
+					//.queryString("field_list", "name,issue_number,id,image")
 					.queryString("filter","volume:" + volID)
-					.queryString("page", String.valueOf(pageNum))
+					.queryString("sort", "cover_date")
+					//.queryString("page", String.valueOf(pageNum))
 					.asJson().getBody();
-			return response;
+			int resNum = jn.getObject().getInt("number_of_total_results");
+			int pages = (resNum/100)+1;		
+			JSONObject jo = jn.getObject();
+			JSONArray allResults[] = new JSONArray[pages]; 
+			allResults[0] = jo.getJSONArray("results");
+			
+			for(int i = 1; i < pages; i++){
+				allResults[i] = Unirest.get(baseURL + "/issues")
+						.header("Accept", "application/json")
+						.queryString("api_key", api_key)
+						.queryString("client","cvscrapper")
+						.queryString("format", "json")
+						.queryString("limit","100")
+						.queryString("offset", String.valueOf(100*i))
+						.queryString("sort", "cover_date")
+						.queryString("field_list", "name,issue_number,id,image,cover_date")
+						.queryString("filter","volume:" + volID)
+						.asJson().getBody().getObject().getJSONArray("results");
+			}
+			
+			JSONArray allIssues = new JSONArray();
+			for(JSONArray j: allResults){
+				for(int k = 0; k < j.length(); k++){
+					allIssues.put(j.get(k));
+				}
+			}
+			return allIssues;
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return response;
+		return null;
 	}
 	
+/**
+ * Returns all data for the given issue id
+ * @param issId - String of the comic's unqiue ID
+ * @return JSON object with the following keys
+ * person_credits<br> concept_credits<br> first_appearance_storyarcs<br> aliases<br> deck<br> description<br>
+ * api_detail_url<br> issue_number<br> location_credits<br> cover_date<br> id<br> date_last_updated<br> store_date<br>
+ * character_credits<br> first_appearance_locations<br> image<br> site_detail_url<br> first_appearance_objects<br>
+ * first_appearance_concepts<br> first_appearance_characters<br> volume<br>date_added<br> first_appearance_teams<br>
+ * team_credits<br>name<br>story_arc_credits<br>character_died_in<br>object_credits<br>has_staff_review<br>
+ * team_disbanded_in
+ */
 	public static JSONObject getIssue(String issId){
 		try {
 			String query = "http://comicvine.gamespot.com/api/issue/4000-" + issId;
-			HttpResponse<String> temp = Unirest.get(query)
+			response = Unirest.get(query)
 					.queryString("api_key", api_key)
-					.asString();
-			JSONObject jo = XML.toJSONObject(temp.getBody());
-			jo = jo.getJSONObject("response");
-			return (JSONObject) jo.get("results");
+					.queryString("format", "json")
+					.asJson().getBody();
+					return response.getObject().getJSONObject("results");
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
