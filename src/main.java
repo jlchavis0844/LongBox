@@ -21,10 +21,16 @@ import com.mashape.unirest.http.JsonNode;
 public class main {
 
 	public static void main(String[] args) {
+	
+		System.out.println(SQLQuery.register("user6", "warrior"));
+		System.out.println(SQLQuery.sendIDs("user6","warrior",new String[]{"1234","5678","91011"}).toString());
+		System.out.println(SQLQuery.getIDs("user6", "warrior", "2017-10-02 00:00:00").toString());
+	}
+
+	public static void testCVcalls(){
 		Scanner in = new Scanner(System.in);
 		System.out.println("Enter volume to search for");
 		String input = in.nextLine();
-
 
 		JSONArray volObj = CVrequest.searchVolume(input);
 
@@ -59,7 +65,6 @@ public class main {
 
 			System.out.println("name: " + name + "\t\t\tstart_year: " + sYear + "\tpublisher: " + pub 
 					+ "\t\tid: " + id + "\tcount_of_issues: " + numIssues);
-
 		}
 
 		System.out.println("Enter volume id to search issues");
@@ -84,7 +89,7 @@ public class main {
 			if(!jo.isNull("id")){
 				id = jo.getInt("id");
 			} else id = -1;
-			
+
 			if(!jo.isNull("cover_date")){
 				coverDate = jo.getString("cover_date");
 			} else id = -1;
@@ -109,8 +114,8 @@ public class main {
 		for(String s: names){
 			System.out.print(s + ", ");
 		}
-			System.out.println();
-			
+		System.out.println();
+
 		for(String s: names)
 			System.out.println(s + "= " + joIssue.get(s).toString());
 
@@ -145,3 +150,4 @@ public class main {
 		}	
 	}
 }
+
