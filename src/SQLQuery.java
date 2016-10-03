@@ -5,7 +5,18 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-
+/**
+ * This class if meant to be a static class used to make calls to PHP scripts that make the SQL calls<br>
+ * There will be 4 main types of commands:<br>
+ * Register and new user - SQLQuery.register()<br>
+ * check login credentials - to be written<br>
+ * upload new ids to database - SQLQuery.sendIDs()<br>
+ * get id's from database - SQLQuery.getIDs()<br>
+ * 
+ * for now, PHP files are located at : http://76.94.123.147:49180
+ * @author James
+ *
+ */
 public class SQLQuery {
 	
 	public static void test(){
@@ -33,25 +44,44 @@ public class SQLQuery {
 		}
 	}
 	
+	/**
+	 * Used to add a user to the login table in the longbox database<br>
+	 * 
+	 * @param user String of the user name
+	 * @param pass String of the password
+	 * @return String of the registration responses:
+	 * failed on id query, + error<br>
+	 * 'registration failed, ' + error<br>
+	 * registration worked'<br>
+	 * "registration failed, user name $lbUser exists"<br>
+	 */
 	public static String register(String user, String pass){
 		JSONObject jo = new JSONObject();
-		jo.put("user", user);
-		jo.put("password", pass);
+		jo.put("user", user);//write user
+		jo.put("password", pass);//write password
 		
-		try {
+		try {//make the HTTP call
 			HttpResponse<String> response = Unirest.post("http://76.94.123.147:49180/LBregister.php")
 					.header("accept", "application/json")
 					.header("Content-Type", "application/json")
 					.body(jo)
 					.asString();
-			return response.getBody().toString();
+			return response.getBody().toString();//string of the response
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "shit";
+		return "poop";//TODO: change to error message
 	}
 	
+	/**
+	 * gets the ID's added after a certain date, returns in a JSONObect
+	 * @param user String of the User
+	 * @param pass String of the password
+	 * @param timeStamp String of the after date "YYYY-MM-DD hr:mn:sc"
+	 * @return JSONObject with the following form:
+	 * {"id_list":["1234","5678","91011"]}
+	 */
 	public static JSONObject getIDs(String user, String pass, String timeStamp){
 		JSONObject jo = new JSONObject();
 		jo.put("user", user);
@@ -72,6 +102,15 @@ public class SQLQuery {
 		return null;
 	}
 	
+	/**
+	 * Writes newly owned IDs to issues table with the given info
+	 * @param user String of the user name
+	 * @param pass String of the password
+	 * @param idArr String array of the id's to send
+	 * @return JASONObject of the insert results, ie
+	 * on insert error: {"91011":"insert error, Duplicate entry 'user6-91011' for key 'PRIMARY'"}<br>
+	 * on insert success {"91011" : "2016-10-02 12:13:14"}
+	 */
 	public static JSONObject sendIDs(String user, String pass, String[] idArr){
 		JSONObject retVal = null;
 		JSONArray ja = new JSONArray();
