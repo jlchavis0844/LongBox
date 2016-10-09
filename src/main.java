@@ -1,4 +1,4 @@
-package Requests;
+
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import Requests.*;
 
 public class main {
 
