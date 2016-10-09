@@ -1,3 +1,4 @@
+package Requests;
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -16,15 +17,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.mashape.unirest.http.JsonNode;
-
 public class main {
 
 	public static void main(String[] args) {
 	
-		System.out.println(SQLQuery.register("user6", "warrior"));
+		/*System.out.println(SQLQuery.register("user6", "warrior"));
 		System.out.println(SQLQuery.sendIDs("user6","warrior",new String[]{"1234","5678","91011"}).toString());
-		System.out.println(SQLQuery.getIDs("user6", "warrior", "2017-10-02 00:00:00").toString());
+		System.out.println(SQLQuery.getIDs("user6", "warrior", "2017-10-02 00:00:00").toString());*/
+		//testCVcalls();
+		testImage();
 	}
 
 	public static void testCVcalls(){
@@ -113,9 +114,11 @@ public class main {
 		JSONObject joIssue = CVrequest.getIssue(input);
 		String []names;
 		names = JSONObject.getNames(joIssue);
+		
 		for(String s: names){
 			System.out.print(s + ", ");
 		}
+		
 		System.out.println();
 
 		for(String s: names)
@@ -151,5 +154,23 @@ public class main {
 			e.printStackTrace();
 		}	
 	}
-}
 
+
+	public static void testImage(){
+		Image img = CVImage.getImage("http://comicvine.gamespot.com/api/image/scale_large/5444374-01.jpg");
+	
+		JDialog dialog = new JDialog();
+		//dialog.setModal(true);
+		//dialog.setUndecorated(true);
+		JLabel label = new JLabel((Icon) new ImageIcon(img));
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.add(label);
+		dialog.addWindowListener(new WindowAdapter() { 
+			@Override public void windowClosed(WindowEvent e) { 
+				System.exit(0);
+			}
+		});
+		dialog.pack();
+		dialog.setVisible(true);
+	}
+}

@@ -1,13 +1,9 @@
-import org.apache.commons.lang.StringUtils;
+package Requests;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.XML;
-
-import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.HttpRequest;
 
 /**
  * A class to simplify the sending of API requests to the ComicVine API.<br>
