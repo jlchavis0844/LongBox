@@ -11,7 +11,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONObject;
 
@@ -30,14 +32,17 @@ public class LocalDB {
 			conn = DriverManager.getConnection(url);
 			stat = conn.createStatement();
 
-			stat.executeUpdate("DELETE FROM issue;");
-			stat.executeUpdate("VACUUM");
+			//stat.executeUpdate("DELETE FROM issue;");
+			//stat.executeUpdate("VACUUM");
 			int id = jo.getInt("id");
+			Date date = new Date();
+			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+			String formattedDate = sdf.format(date);
 
 			//stat.executeUpdate("INSERT INTO issue (id) VALUES ('" + id + "');");
 			String[] names = JSONObject.getNames(jo);
-			String qNames = "INSERT INTO issue (";
-			String qVals = "VALUES (";
+			String qNames = "INSERT INTO issue (timeStamp,";
+			String qVals = "VALUES ('" + formattedDate + "',";
 
 
 			int nameNum = names.length;
@@ -79,16 +84,6 @@ public class LocalDB {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			try {
-				if(!stat.isClosed())
-					stat.close();
-				if(!conn.isClosed())
-					conn.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		return true;
 	}

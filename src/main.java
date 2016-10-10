@@ -37,10 +37,16 @@ public class main {
 		//LocalDB.loadSQL("./issueTable.sql");
 		//LocalDB.printTable("issue");
 		//String urlStr = "http://comicvine.gamespot.com/api/image/scale_avatar/5444374-01.jpg";
-		String id = "552139";
+		Long start;
+		Long stop;
+		start = System.currentTimeMillis();
+		String id = "132361";
 		JSONObject jo = CVrequest.getIssue(id);
-		CVImage.addAllImages(jo);
-		//CVImage.addIssueImg(urlStr, id, CVImage.THUMB);
+		LocalDB.addIssue(jo);
+		//CVImage.addAllImages(jo);
+		CVImage.addIssueImg(jo.getJSONObject("image").getString("medium_url"), id, "medium_url");
+		stop = System.currentTimeMillis();
+		System.out.println("operation took (ms)" + (stop - start));
 		//viewImage(CVImage.getLocalImage(id, CVImage.THUMB));
 		
 		
