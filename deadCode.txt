@@ -91,4 +91,75 @@
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		*********************************SQL LocalDB***************************************
+		
+		public class Test {
+    public static void main(String[] args) throws Exception {
+       // Class.forName("org.sqlite.JDBC");
+        String url = "jdbc:sqlite:./DigLongBox.db";
+        Connection conn = DriverManager.getConnection(url);
+        Statement stat = conn.createStatement();
+        stat.executeUpdate("drop table if exists people;");
+        stat.executeUpdate("create table people (name, occupation);");
+        PreparedStatement prep = conn.prepareStatement(
+            "insert into people values (?, ?);");
+
+        prep.setString(1, "Gandhi");
+        prep.setString(2, "politics");
+        prep.addBatch();
+        prep.setString(1, "Turing");
+        prep.setString(2, "computers");
+        prep.addBatch();
+        prep.setString(1, "Wittgenstein");
+        prep.setString(2, "smartypants");
+        prep.addBatch();
+
+        conn.setAutoCommit(false);
+        prep.executeBatch();
+        conn.setAutoCommit(true);
+
+        ResultSet rs = stat.executeQuery("select * from people;");
+        while (rs.next()) {
+            System.out.println("name = " + rs.getString("name"));
+            System.out.println("job = " + rs.getString("occupation"));
+        }
+        rs.close();
+        conn.close();
+    }
+  }
+  
+  ****************database add issue *************************************
+  
+			//			String value = "";
+			//			for(String s: names){
+			//				switch(s){
+			//				case "image":
+			//					JSONObject imgJO = jo.getJSONObject(s);
+			//					String imgNames[] = JSONObject.getNames(imgJO);
+			//					
+			//					for(String curr: imgNames){
+			//						value = imgJO.getString(curr);
+			//						String sql = "UPDATE issue SET " + curr + " = ? WHERE id = " + id + ";";
+			//						PreparedStatement pre = conn.prepareStatement(sql);
+			//						pre.setString(1, value);
+			//						pre.executeUpdate();
+			//					}
+			//					break;
+			//
+			//				default:
+			//					if(jo.isNull(s))
+			//						break;
+			//					
+			//					value = jo.get(s).toString();
+			//					//String sql = "UPDATE issue SET " + s + " = ? WHERE id = " + id + ";";
+			//					//PreparedStatement pre = conn.prepareStatement(sql);
+			//					//pre.setString(1, value);
+			//					//pre.executeUpdate();
+			//					break;
+			//				}
+			//			}
+**********************************************************
+
+
 	

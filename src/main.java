@@ -2,6 +2,7 @@
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import Requests.*;
+import LocalDB.*;
 
 public class main {
 
@@ -27,7 +29,21 @@ public class main {
 		System.out.println(SQLQuery.sendIDs("user6","warrior",new String[]{"1234","5678","91011"}).toString());
 		System.out.println(SQLQuery.getIDs("user6", "warrior", "2017-10-02 00:00:00").toString());*/
 		//testCVcalls();
-		testImage();
+		//testImage();
+		//System.out.println(CVrequest.getIssue("552139").toString());
+		//LocalDB.addIssue(CVrequest.getIssue("552139"));
+		//LocalDB.executeUpdate("ALTER TABLE issue CHANGE COLUMN id id INT;");
+		//LocalDB.test();
+		//LocalDB.loadSQL("./issueTable.sql");
+		//LocalDB.printTable("issue");
+		//String urlStr = "http://comicvine.gamespot.com/api/image/scale_avatar/5444374-01.jpg";
+		String id = "552139";
+		JSONObject jo = CVrequest.getIssue(id);
+		CVImage.addAllImages(jo);
+		//CVImage.addIssueImg(urlStr, id, CVImage.THUMB);
+		//viewImage(CVImage.getLocalImage(id, CVImage.THUMB));
+		
+		
 	}
 
 	public static void testCVcalls(){
@@ -159,8 +175,24 @@ public class main {
 
 
 	public static void testImage(){
-		Image img = CVImage.getImage("http://comicvine.gamespot.com/api/image/scale_large/5444374-01.jpg");
+		Image img = CVImage.getRemoteImage("http://comicvine.gamespot.com/api/image/scale_large/5444374-01.jpg");
 	
+		JDialog dialog = new JDialog();
+		//dialog.setModal(true);
+		//dialog.setUndecorated(true);
+		JLabel label = new JLabel((Icon) new ImageIcon(img));
+		dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		dialog.add(label);
+		dialog.addWindowListener(new WindowAdapter() { 
+			@Override public void windowClosed(WindowEvent e) { 
+				System.exit(0);
+			}
+		});
+		dialog.pack();
+		dialog.setVisible(true);
+	}
+	
+	public static void viewImage(BufferedImage img){
 		JDialog dialog = new JDialog();
 		//dialog.setModal(true);
 		//dialog.setUndecorated(true);
