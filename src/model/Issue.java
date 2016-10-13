@@ -74,6 +74,10 @@ public class Issue {
 		return full;
 	}
 	
+	public String getMediumUrl(){
+		return jo.getJSONObject("image").get("medium_url").toString();
+	}
+	
 	public String toString(){
 		return "issue#: "+issueNum+"\tid: "+id+"\t name: "+name+"\t\tcover date: "+coverDate;
 	}

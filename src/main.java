@@ -71,25 +71,33 @@ public class main {
 		input = in.nextLine();
 		ArrayList<Issue> issues = CVrequest.getVolumeIDs(input);
 
-		for(Issue i: issues){
-			System.out.println(i.toString());
+		for(int i = 0; i < issues.size(); i++){
+			System.out.println("Index " + i + "\t " + issues.get(i));
 		}
-		System.out.println("enter issue id");
+		System.out.println("enter INDEX Number, not id (simulate) clicking on something");
 		input = in.nextLine();
 		in.close();
 
-		Long start;
-		Long stop;
+		Long start, stop;
 		start = System.currentTimeMillis();
-		//String id = "551282";
-		JSONObject jo = CVrequest.getIssue(input);
-		LocalDB.addIssue(jo);
-		//CVImage.addAllImages(jo);
-		CVImage.addIssueImg(jo.getJSONObject("image").getString("medium_url"), input, "medium_url");
-		CVImage.getLocalImage(input, "medium_url");
+		
+		Issue bigBoyIssue = issues.get(Integer.valueOf(input));
+		bigBoyIssue.populate();
+		LocalDB.addIssue(bigBoyIssue.getFullObject());
+		CVImage.addIssueImg(bigBoyIssue.getMediumUrl(), bigBoyIssue.getID(), "medium_url");
 		stop = System.currentTimeMillis();
 		System.out.println("operation took (ms)" + (stop - start));
-		//viewImage(CVImage.getLocalImage(input, "medium_url"));
+		viewImage(CVImage.getLocalImage(bigBoyIssue.getID(), "medium_url"));
+		
+		//String id = "551282";
+//		JSONObject jo = CVrequest.getIssue(input);
+//		LocalDB.addIssue(jo);
+//		//CVImage.addAllImages(jo);
+//		CVImage.addIssueImg(jo.getJSONObject("image").getString("medium_url"), input, "medium_url");
+//		CVImage.getLocalImage(input, "medium_url");
+//		stop = System.currentTimeMillis();
+//		System.out.println("operation took (ms)" + (stop - start));
+//		//viewImage(CVImage.getLocalImage(input, "medium_url"));
 
 	}
 
