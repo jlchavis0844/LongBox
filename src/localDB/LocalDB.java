@@ -17,6 +17,7 @@ import java.util.Date;
 
 import org.json.JSONObject;
 
+import model.Issue;
 import requests.CVrequest;
 
 public class LocalDB {
@@ -26,7 +27,10 @@ public class LocalDB {
 	private static Statement stat;
 
 
-
+	public static boolean addIssue(Issue i){
+		return addIssue(i.getFullObject());
+	}
+	
 	public static boolean addIssue(JSONObject jo){
 		try {
 			conn = DriverManager.getConnection(url);
@@ -80,7 +84,7 @@ public class LocalDB {
 			pre.executeUpdate();
 
 
-			//printTable("issue");
+			printTable("issue");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

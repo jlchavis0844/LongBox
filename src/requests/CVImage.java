@@ -12,6 +12,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONObject;
 
 import localDB.*;
+import model.Issue;
 
 public class CVImage {
 	private static BufferedImage img = null;
@@ -49,6 +50,16 @@ public class CVImage {
 		return img;
 	}
 
+	public static boolean addIssueImg(Issue i, String size){
+		String urlType = null;
+		
+		if(size.contains("medium")){
+			urlType = i.getMediumUrl();
+		} //add more later
+		
+		return addIssueImg(urlType, i.getID(), size);
+	}
+	
 	public static boolean addIssueImg(String urlStr, String id, String size){
 		URL url = null;
 		HttpURLConnection conn = null;

@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import requests.*;
 
@@ -94,6 +97,26 @@ public class Issue {
 			return false;
 		}
 
+	}
+	
+	public String getPerson(String credit){
+		if(!check("person_credits")){
+			return null;
+		}
+		
+		JSONArray ja = jo.getJSONArray("person_credits");
+		String line = "";
+		String role = null;
+		int jasize = ja.length();
+		
+		for(int i = 0; i < jasize; i++){
+			role = ja.getJSONObject(i).get("role").toString();
+			if(role.contains(credit)){
+				line += ja.getJSONObject(i).get("name").toString() + ",";
+			}
+		}
+		line = line.substring(0, line.length()-1);
+		return line;
 	}
 
 }

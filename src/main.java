@@ -52,8 +52,12 @@ public class main {
 		System.out.println("operation took (ms)" + (stop - start));
 		viewImage(CVImage.getLocalImage(id, "medium_url"));*/
 
-		testCVcalls();
+		//testCVcalls();
 		//viewImage(CVImage.getRemoteImage("http://comicvine.gamespot.com/api/image/scale_medium/4031792-01.jpg"));
+		
+		Issue test = new Issue(CVrequest.getIssue("516107"));
+		System.out.println(test.getPerson("writer"));
+		
 
 
 	}
@@ -81,10 +85,10 @@ public class main {
 		Long start, stop;
 		start = System.currentTimeMillis();
 		
-		Issue bigBoyIssue = issues.get(Integer.valueOf(input));
-		bigBoyIssue.populate();
-		LocalDB.addIssue(bigBoyIssue.getFullObject());
-		CVImage.addIssueImg(bigBoyIssue.getMediumUrl(), bigBoyIssue.getID(), "medium_url");
+		Issue bigBoyIssue = issues.get(Integer.valueOf(input));//get index of the issue we want to add
+		bigBoyIssue.populate();//make search issue into a full issue
+		LocalDB.addIssue(bigBoyIssue.getFullObject());//add to the local DB
+		CVImage.addIssueImg(bigBoyIssue.getMediumUrl(), bigBoyIssue.getID(), "medium_url");//add the image to the local
 		stop = System.currentTimeMillis();
 		System.out.println("operation took (ms)" + (stop - start));
 		viewImage(CVImage.getLocalImage(bigBoyIssue.getID(), "medium_url"));
