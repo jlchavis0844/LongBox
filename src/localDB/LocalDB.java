@@ -14,6 +14,8 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.json.JSONObject;
 
@@ -25,12 +27,14 @@ public class LocalDB {
 	private static String url = "jdbc:sqlite:./DigLongBox.db";
 	private static Connection conn;
 	private static Statement stat;
+	public static int ISSUE = 0;
+	public static int VOLUME = 1;
 
 
 	public static boolean addIssue(Issue i){
 		return addIssue(i.getFullObject());
 	}
-	
+
 	public static boolean addIssue(JSONObject jo){
 		try {
 			conn = DriverManager.getConnection(url);
@@ -83,7 +87,6 @@ public class LocalDB {
 
 			pre.executeUpdate();
 
-
 			printTable("issue");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -100,9 +103,76 @@ public class LocalDB {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
-				
+
 		}*/
 		return true;
+	}
+
+	public static boolean exists(String id, int type){
+		int count = 0;
+		try {
+			conn = DriverManager.getConnection(url);
+			Statement stat = conn.createStatement();
+
+			String table = "";//choose the table
+			if(type == 0){
+				table = "issue";
+			} else table = "volume";
+
+			//Check to see if the issue/volume has been added
+			String sql = "SELECT 1 FROM " + table + " WHERE id = '" + id + "';";
+			ResultSet rs = stat.executeQuery(sql);
+			rs.next();
+			//System.out.println(rs.getString(1));
+			count = Integer.valueOf(rs.getString(1));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//if issue/volume hasn't been added, quit and return false
+		if(count == 1)
+			return true;
+		else return false;
+	}
+
+	/**
+	 * updates the field with the value given.
+	 * @param id - unique id of the object
+	 * @param field - the datafield to be updated
+	 * @param value - the value of the updated field
+	 * @param type - either localDB.ISSUE or localDB.VOLUME
+	 * @return boolean if the object does not exists or the update fails, returns null
+	 */
+	public static boolean update(String id, String field, String value, int type){
+		int count = 0;
+		try {
+			if(!exists(id, type))
+				return false;
+			conn = DriverManager.getConnection(url);
+			Statement stat = conn.createStatement();
+			
+			String sql = "UPDATE issue SET " + field + " = ? WHERE id = ?";
+			PreparedStatement pre = conn.prepareStatement(sql);
+			pre.setString(1, value);
+			pre.setString(2, id);
+			count = pre.executeUpdate();
+
+
+			if(count == 0){//return true if 1, false if zero 
+				return false;
+			} else return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	public static boolean executeUpdate(String str){
@@ -125,7 +195,7 @@ public class LocalDB {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
-				
+
 		}*/
 		return true;
 	}
@@ -151,7 +221,7 @@ public class LocalDB {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}	
-				
+
 		}*/
 		return rs;
 	}
@@ -226,7 +296,6 @@ public class LocalDB {
 	public static boolean loadSQL(String path){
 		String url = "jdbc:sqlite:./DigLongBox.db";
 		try {
-
 			conn = DriverManager.getConnection(url);
 			stat = conn.createStatement();
 			stat.executeUpdate("drop table if exists issue;");
@@ -262,8 +331,61 @@ public class LocalDB {
 		}
 		return true;
 	}
-	
 
+	public static String getIssueField(String key, String id, int type){
+		try {
+			conn = DriverManager.getConnection(url);
+			stat = conn.createStatement();
+			
+			String query  = "SELECT " + key + " FROM ? WHERE id = ?;";
+			String table = (type == 0) ? "issue" : "volume";
+			PreparedStatement pre = conn.prepareStatement(query);
+			pre.setString(1, table);
+			pre.setString(2, id);
+			ResultSet rs = pre.executeQuery();
+			rs.next();
+			return rs.getString(1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;		
+	}
+	
+	public static JSONObject getLocalIssue(String id){
+		
+		try {
+			conn = DriverManager.getConnection(url);
+			stat = conn.createStatement();
+			
+			String sql = "SELECT * FROM issue WHERE id = ?";
+			PreparedStatement pre = conn.prepareStatement(sql);
+			pre.setString(1, id);
+			
+			ResultSet rs = pre.executeQuery();
+			ResultSetMetaData meta = rs.getMetaData();
+			List<List<String>> rowList = new LinkedList<List<String>>();
+			Object val = "";
+			
+			while(rs.next()){
+				List<String> colList = new LinkedList<String>();
+				rowList.add(colList);
+				int size = meta.getColumnCount();
+				
+				for(int col = 1; col <=  size; col++){
+					val = rs.getObject(col);
+					colList.add(val.toString());
+				}
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return null;
+	}
 }
 
 

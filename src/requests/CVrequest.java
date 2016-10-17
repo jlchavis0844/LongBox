@@ -1,5 +1,6 @@
 package requests;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -116,14 +117,51 @@ public class CVrequest {
 	}
 
 	/**
-	 * Easy volume search, returns <b>WITHOUT</b> header.
+	 * Easy volume search, returns ArrayList of the volumes
 	 * @param qString - what volume to search for
-	 * @return JSONArray of the search results, <b>WITHOUT</b> header, fields:
+	 * @return ArrayList<Volume> of the search results,fields:
 	 * name<br>start_year<br>publisher array<br>id<br>count_of_issues<br>image array
 	 * 
 	 */
 	public static ArrayList<Volume> searchVolume(String qString){
-		
+
+		ArrayList<Volume> vols = new ArrayList<>();
+		try {
+			response = Unirest.get(baseURL + "/search")
+					.header("Accept", "application/json")
+					.queryString("api_key", api_key)
+					.queryString("client","cvscrapper")
+					.queryString("query", qString)
+					.queryString("resources", "volume")
+					.queryString("field_list", "name,start_year,publisher,id,count_of_issues,image")
+					.queryString("format", "json")
+					.queryString("limit", "20")
+					.asJson().getBody();
+			JSONArray ja = response.getObject().getJSONArray("results");
+
+			int JAsize = ja.length();
+			for(int i = 0; i< JAsize; i++){
+				vols.add(new Volume(ja.getJSONObject(i)));
+			}
+
+			return vols;
+		} catch (UnirestException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Super volume search, returns ArrayList of the volumes that published by publisher param
+	 * @param qString - what volume to search for
+	 * @param publisher
+	 * @return ArrayList<Volume> of the search results,fields:
+	 * name<br>start_year<br>publisher array<br>id<br>count_of_issues<br>image array
+	 * 
+	 */
+	public static ArrayList<Volume> searchVolume(String qString, String publisher){
+
 		ArrayList<Volume> vols = new ArrayList<>();
 		try {
 			response = Unirest.get(baseURL + "/search")
@@ -136,13 +174,47 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", "100")
 					.asJson().getBody();
-			JSONArray ja = response.getObject().getJSONArray("results");
-			
-			int JAsize = ja.length();
-			for(int i = 0; i< JAsize; i++){
-				vols.add(new Volume(ja.getJSONObject(i)));
+
+			int resNum = response.getObject().getInt("number_of_total_results");
+			System.out.println("found " + resNum);
+			int pages = (resNum/100)+1;		
+			JSONObject jo = response.getObject();
+			JSONArray allResults[] = new JSONArray[pages]; 
+			allResults[0] = jo.getJSONArray("results");
+
+			for(int i = 1; i < pages; i++){
+				allResults[i] = Unirest.get(baseURL + "/search")
+						.header("Accept", "application/json")
+						.queryString("api_key", api_key)
+						.queryString("client","cvscrapper")
+						.queryString("query", qString)
+						.queryString("resources", "volume")
+						.queryString("field_list", "name,start_year,publisher,id,count_of_issues,image")
+						.queryString("offset", String.valueOf(100*i))
+						.queryString("format", "json")
+						.queryString("limit", "100")
+						.asJson().getBody().getObject().getJSONArray("results");
 			}
-			
+
+			//Volume temp = null;
+			JSONObject tempJO;
+			String pubName = "";
+
+			for(JSONArray j: allResults){				
+				for(int k = 0; k < j.length() && vols.size() < 30; k++){
+					tempJO = j.getJSONObject(k);
+					if (!tempJO.isNull("publisher") && !tempJO.isNull("name")){
+						pubName = tempJO.getJSONObject("publisher").get("name").toString();
+						if(pubName.contains(publisher)){
+							vols.add(new Volume(tempJO));
+						}
+					}
+				}
+			}						
+			System.out.println(vols.size() + " results");
+			if(vols.size() > 30){
+			}
+			System.out.println("returning " + vols.size());
 			return vols;
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
@@ -184,7 +256,7 @@ public class CVrequest {
 	 */
 	public static ArrayList<Issue> getVolumeIDs(String volID){
 		ArrayList<Issue> list = new ArrayList<>();;
-		
+
 		try {
 			JsonNode jn = Unirest.get(baseURL + "/issues")
 					.header("Accept", "application/json")
@@ -192,17 +264,18 @@ public class CVrequest {
 					.queryString("client","cvscrapper")
 					.queryString("format", "json")
 					.queryString("limit", "100")
-					.queryString("field_list", "name,issue_number,id,image,cover_date")
+					.queryString("field_list", "name,issue_number,id,image,cover_date,deck,description")
 					.queryString("filter","volume:" + volID)
 					.queryString("sort", "cover_date")
 					//.queryString("page", String.valueOf(pageNum))
 					.asJson().getBody();
+			
 			int resNum = jn.getObject().getInt("number_of_total_results");
 			int pages = (resNum/100)+1;		
 			JSONObject jo = jn.getObject();
 			JSONArray allResults[] = new JSONArray[pages]; 
 			allResults[0] = jo.getJSONArray("results");
-			
+
 			for(int i = 1; i < pages; i++){
 				allResults[i] = Unirest.get(baseURL + "/issues")
 						.header("Accept", "application/json")
@@ -212,11 +285,11 @@ public class CVrequest {
 						.queryString("limit","100")
 						.queryString("offset", String.valueOf(100*i))
 						.queryString("sort", "cover_date")
-						.queryString("field_list", "name,issue_number,id,image,cover_date")
+						.queryString("field_list", "name,issue_number,id,image,cover_date,deck,description")
 						.queryString("filter","volume:" + volID)
 						.asJson().getBody().getObject().getJSONArray("results");
 			}
-						
+
 			Issue temp = null;
 			for(JSONArray j: allResults){
 				for(int k = 0; k < j.length(); k++){
@@ -232,18 +305,18 @@ public class CVrequest {
 		}
 		return null;
 	}
-	
-/**
- * Returns all data for the given issue id
- * @param issId - String of the comic's unqiue ID
- * @return JSON object with the following keys
- * person_credits<br> concept_credits<br> first_appearance_storyarcs<br> aliases<br> deck<br> description<br>
- * api_detail_url<br> issue_number<br> location_credits<br> cover_date<br> id<br> date_last_updated<br> store_date<br>
- * character_credits<br> first_appearance_locations<br> image<br> site_detail_url<br> first_appearance_objects<br>
- * first_appearance_concepts<br> first_appearance_characters<br> volume<br>date_added<br> first_appearance_teams<br>
- * team_credits<br>name<br>story_arc_credits<br>character_died_in<br>object_credits<br>has_staff_review<br>
- * team_disbanded_in
- */
+
+	/**
+	 * Returns all data for the given issue id
+	 * @param issId - String of the comic's unqiue ID
+	 * @return JSON object with the following keys
+	 * person_credits<br> concept_credits<br> first_appearance_storyarcs<br> aliases<br> deck<br> description<br>
+	 * api_detail_url<br> issue_number<br> location_credits<br> cover_date<br> id<br> date_last_updated<br> store_date<br>
+	 * character_credits<br> first_appearance_locations<br> image<br> site_detail_url<br> first_appearance_objects<br>
+	 * first_appearance_concepts<br> first_appearance_characters<br> volume<br>date_added<br> first_appearance_teams<br>
+	 * team_credits<br>name<br>story_arc_credits<br>character_died_in<br>object_credits<br>has_staff_review<br>
+	 * team_disbanded_in
+	 */
 	public static JSONObject getIssue(String issId){
 		try {
 			String query = "http://comicvine.gamespot.com/api/issue/4000-" + issId;
@@ -251,7 +324,7 @@ public class CVrequest {
 					.queryString("api_key", api_key)
 					.queryString("format", "json")
 					.asJson().getBody();
-					return response.getObject().getJSONObject("results");
+			return response.getObject().getJSONObject("results");
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
