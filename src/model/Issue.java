@@ -1,6 +1,6 @@
 package model;
 
-import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,6 +13,7 @@ public class Issue {
 	private String name;
 	private String coverDate;
 	private String issueNum;
+	private boolean local = false;
 
 
 	public Issue(JSONObject jo){
@@ -30,6 +31,12 @@ public class Issue {
 		if(check("issue_number")){
 			issueNum = jo.get("issue_number").toString();
 		} else issueNum = "No Issue #";
+
+		if(jo.has("timeStamp"))
+			full = true;
+
+		if(check("volume"))
+			jo.put("volName", jo.getJSONObject("volume").getString("name"));
 	}
 
 	public String getID(){
@@ -76,7 +83,7 @@ public class Issue {
 	public boolean isFull(){
 		return full;
 	}
-	
+
 	public String getDeck(){
 		if(check("deck")){
 			return jo.getString("deck");
@@ -84,7 +91,31 @@ public class Issue {
 	}
 
 	public String getMediumUrl(){
-		return jo.getJSONObject("image").get("medium_url").toString();
+		if(check("image")){
+			return jo.getJSONObject("image").get("medium_url").toString();
+		} else return null;
+	}
+
+	public BufferedImage getMediumImg(){
+		if(local && check("medium")){
+			return CVImage.getLocalImage(id, "medium");
+		} else if(check("image")){
+			return CVImage.getRemoteImage(getMediumUrl());
+		} else return null;
+	}
+	
+	public String getThumbUrl(){
+		if(check("image")){
+			return jo.getJSONObject("image").getString("thumb_url");
+		} else return null;
+	}
+
+	public BufferedImage getThumbImg(){
+		if(check("thumb")){
+			return CVImage.getLocalImage(id, "thumb");
+		} else if(check("image")){
+			return CVImage.getRemoteImage(getThumbUrl());
+		} else return null;
 	}
 
 	public String toString(){
@@ -125,7 +156,7 @@ public class Issue {
 				line += ja.getJSONObject(i).get("name").toString() + ", ";
 			}
 		}
-		
+
 		if(!line.equals(""))
 			line = line.substring(0, line.length()-2);
 		return line;

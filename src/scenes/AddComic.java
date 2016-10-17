@@ -15,10 +15,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class AddComic{
+public class AddComic {
 	private Button srchButton;
 	private Button addButton;
 	private BorderPane layout;

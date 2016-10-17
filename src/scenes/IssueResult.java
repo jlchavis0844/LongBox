@@ -21,9 +21,9 @@ public class IssueResult extends VBox {
 	@FXML
 	private WebView desc;
 	
-	public IssueResult(Issue issue) {
+	public IssueResult(Issue rhIssue) {
 		super();
-		this.issue = issue;
+		this.issue = rhIssue;
 		
 		text = new Label();
 		text.setWrapText(true);

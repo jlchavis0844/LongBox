@@ -1,7 +1,6 @@
 package localDB;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,6 +19,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import model.Issue;
+import requests.CVImage;
 import requests.CVrequest;
 
 public class LocalDB {
@@ -27,9 +27,6 @@ public class LocalDB {
 	private static String url = "jdbc:sqlite:./DigLongBox.db";
 	private static Connection conn;
 	private static Statement stat;
-	public static int ISSUE = 0;
-	public static int VOLUME = 1;
-
 
 	public static boolean addIssue(Issue i){
 		return addIssue(i.getFullObject());
@@ -46,6 +43,8 @@ public class LocalDB {
 			Date date = new Date();
 			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
 			String formattedDate = sdf.format(date);
+			
+			jo.put("JSON", jo.toString());
 
 			//stat.executeUpdate("INSERT INTO issue (id) VALUES ('" + id + "');");
 			String[] names = JSONObject.getNames(jo);
@@ -58,6 +57,7 @@ public class LocalDB {
 			ArrayList<String> goodValues = new ArrayList<>();
 			String value = "";
 			String currName = "";
+			
 			for(int i = 0; i < nameNum; i++){
 				currName = names[i];
 				if(!jo.isNull(currName) && !currName.equals("image")){
@@ -79,15 +79,21 @@ public class LocalDB {
 					qVals += (" ? );");
 				}
 			}
+			
 			String sql = qNames+ qVals;
+			System.out.println(sql);
 			PreparedStatement pre = conn.prepareStatement(sql); 
+			
 			for(int i = 0; i < nameNum; i++){
 				pre.setString((i+1), goodValues.get(i));
 			}
-
+			
 			pre.executeUpdate();
 
-			printTable("issue");
+			CVImage.addIssueImg(jo.getJSONObject("image").getString("medium_url"),""+id ,"medium");
+			CVImage.addIssueImg(jo.getJSONObject("image").getString("thumb_url"),""+id ,"thumb");
+			
+			//printTable("issue");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -331,7 +337,40 @@ public class LocalDB {
 		}
 		return true;
 	}
+	
+	
+	public static Issue getIssue(String id){
+		Issue issue = null;
+		try {
+			conn = DriverManager.getConnection(url);
+			stat = conn.createStatement();
+			
+			String query  = "SELECT JSON FROM issue WHERE id = ?;";
+			PreparedStatement pre = conn.prepareStatement(query);
+			pre.setString(1, id);
+			ResultSet rs = pre.executeQuery();
+			rs.next();
+			String jsonStr = rs.getString(1);
+			
+			if(!jsonStr.equals("") || jsonStr != null){
+				issue = new Issue(new JSONObject(jsonStr));
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return issue;	
+		
+	}
 
+	/**
+	 * Returns the value of the requested field from the reqested table for the ID passed
+	 * @param key - the field name
+	 * @param id - the id of the issue/ volume
+	 * @param type - LocalDB.ISSUE or LocalDB.VOLUME
+	 * @return A string of the value corresponding to the key
+	 */
 	public static String getIssueField(String key, String id, int type){
 		try {
 			conn = DriverManager.getConnection(url);
@@ -382,9 +421,37 @@ public class LocalDB {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 		return null;
+	}
+	
+	public static ArrayList<Issue> getAllIssues(){
+		ArrayList<Issue> iList = new ArrayList<Issue>();
+		try {
+			conn = DriverManager.getConnection(url);
+			stat = conn.createStatement();
+			
+			String sql = "SELECT JSON FROM issue;";
+			PreparedStatement pre = conn.prepareStatement(sql);
+			
+			ResultSet rs = pre.executeQuery();
+			ResultSetMetaData meta = rs.getMetaData();
+			
+			String val = "";
+			JSONObject tObj = null;
+			
+			while(rs.next()){
+				val = rs.getString(1);
+				tObj = new JSONObject(val);
+				iList.add(new Issue(tObj));
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(iList.size() == 0)
+			return null;
+		return iList;
 	}
 }
 

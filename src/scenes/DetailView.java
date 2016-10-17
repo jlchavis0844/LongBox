@@ -24,7 +24,9 @@ public class DetailView extends BorderPane{
 
 	public DetailView(Issue issue) {
 		super();
-		issue.populate();
+		
+		if(!issue.isFull())
+			issue.populate();
 		
 		//VBox left = new VBox();
 		Label nameLbl = new Label("name");
@@ -76,7 +78,7 @@ public class DetailView extends BorderPane{
 		descBox.setMaxHeight(300);
 		//descBox.setFontScale(0.75);
 		
-		BufferedImage bi = CVImage.getRemoteImage(issue.getMediumUrl());
+		BufferedImage bi = issue.getMediumImg();
 		Image image = SwingFXUtils.toFXImage(bi, null);
 		ImageView imageView = new ImageView(image);
 		
