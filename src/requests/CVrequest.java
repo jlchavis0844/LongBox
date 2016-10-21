@@ -240,7 +240,7 @@ public class CVrequest {
 					.queryString("format", "json")
 					.queryString("limit", "100")
 					.asJson().getBody();
-			return response.getObject();
+			return response.getObject().getJSONObject("results");
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

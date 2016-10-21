@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import localDB.LocalDB;
 import requests.*;
 
 public class Issue {
@@ -98,7 +100,7 @@ public class Issue {
 
 	public BufferedImage getMediumImg(){
 		if(local && check("medium")){
-			return CVImage.getLocalImage(id, "medium");
+			return CVImage.getLocalImage(id, "medium", LocalDB.ISSUE);
 		} else if(check("image")){
 			return CVImage.getRemoteImage(getMediumUrl());
 		} else return null;
@@ -112,7 +114,7 @@ public class Issue {
 
 	public BufferedImage getThumbImg(){
 		if(check("thumb")){
-			return CVImage.getLocalImage(id, "thumb");
+			return CVImage.getLocalImage(id, "thumb", LocalDB.ISSUE);
 		} else if(check("image")){
 			return CVImage.getRemoteImage(getThumbUrl());
 		} else return null;
