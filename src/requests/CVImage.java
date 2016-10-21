@@ -93,8 +93,7 @@ public class CVImage {
 	}
 	
 	public static boolean addVolumeImg(Volume vol, String size){
-			
-		
+		addVolumeImg(vol.getImgURL(size), vol.getID(), size);
 		return true;
 	}
 	
@@ -114,7 +113,8 @@ public class CVImage {
 			File dir = new File("./images/volume/");
 			String name = String.format("%s.%s", RandomStringUtils.randomAlphanumeric(12), ext);
 			File file = new File(dir, name);
-			ImageIO.write(img, "png", file);
+			boolean writeRes = ImageIO.write(img, "png", file);
+			System.out.println("trying to write " + writeRes);
 			String col = size.replace("_url", "");
 			
 			String str = "UPDATE issue SET "+ col + " ='./Images/volume/" + name +"' WHERE id='" + id + "';";

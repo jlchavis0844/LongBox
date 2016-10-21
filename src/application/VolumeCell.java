@@ -18,16 +18,15 @@ public class VolumeCell extends TreeItem{
 		vp = vPre;
 	}
 
-	
 	public void setIssues(ArrayList<Issue> allIssues){
 		for(Issue i : allIssues){
-			if(i.getVolumeName().equals(vp.getVolName())){					
+			if(i.getVolumeID().equals(vp.getVolume().getID())){					
 				getChildren().add(new TreeItem<IssuePreview>(new IssuePreview(i)));
 			}
 		}
 		filled = true;
 	}
-	
+
 	public boolean isFilled(){
 		return filled;
 	}

@@ -18,7 +18,7 @@ public class VolumePreview extends HBox{
 
 	public VolumePreview(Volume rhVol, ArrayList<Issue> issues) {
 		super();
-		
+
 		vol = rhVol;
 		long start = System.currentTimeMillis();
 		BufferedImage bi = vol.getImage("thumb");
@@ -27,23 +27,52 @@ public class VolumePreview extends HBox{
 		System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
 		thumb.setFitHeight(50);
 		thumb.setFitWidth(33);
-		
+
 		int counter = 0;
 		for(Issue i : issues){
-			if(i.getVolumeName().equals(vol.getName())){
+			if(i.getVolumeID().equals(vol.getID())){
 				counter++;
 			}
 		}
-		
+
 		String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
-					"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
-		
+				"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
+
 		infoLbl = new Label(info);
 		getChildren().addAll(thumb, infoLbl);
 	}
-	
+
 	public String getVolName(){
 		return vol.getName();
 	}
 
+	public void update(ArrayList<Issue> issues){
+		int counter = 0;
+		for(Issue i : issues){
+			if(i.getVolumeID().equals(vol.getID())){
+				counter++;
+			}
+
+			String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
+					"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
+			infoLbl.setText(info);
+			getChildren().clear();
+			getChildren().addAll(thumb, infoLbl);
+		}
+
+	}
+
+	/**
+	 * @return the vol
+	 */
+	public Volume getVolume() {
+		return vol;
+	}
+
+	/**
+	 * @param vol the vol to set
+	 */
+	public void setVolume(Volume vol) {
+		this.vol = vol;
+	}
 }

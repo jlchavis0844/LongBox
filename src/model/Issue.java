@@ -57,6 +57,13 @@ public class Issue {
 			return tempObj.getString("name");
 		} else return null;
 	}
+	
+	public String getVolumeID(){
+		if(check("volume")){
+			JSONObject tempObj = jo.getJSONObject("volume");
+			return tempObj.get("id").toString();
+		} else return null;
+	}
 
 	public String getName(){
 		return name;

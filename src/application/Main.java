@@ -33,6 +33,7 @@ import javafx.scene.layout.*;
 
 
 public class Main extends Application {
+	@SuppressWarnings("rawtypes")
 	private Stage window;
 	private BorderPane layout;
 	private ListView<VolResult> list;
@@ -49,6 +50,7 @@ public class Main extends Application {
 	private static ScrollPane leftScroll;
 	private HBox hbox;
 	private Button addButton;
+	private static TreeView treeView;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
@@ -58,73 +60,77 @@ public class Main extends Application {
 		layout = new BorderPane();
 
 		added = new ArrayList<Issue>();
-		
+
 		System.out.println("getting all issues");
 		Long start;
 		start = System.currentTimeMillis();
 		allIssues = LocalDB.getAllIssues();
 		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
-		
-//		System.out.println("generating previews");
-//		start = System.currentTimeMillis();
-//		prevs = new ArrayList<IssuePreview>();
-//
-//		Long pStart = (long) 0.0;
-//		Vector<Long> times = new Vector<Long>();
-//		
-//		for(Issue i: allIssues){
-//			pStart = System.currentTimeMillis();
-//			prevs.add(new IssuePreview(i));
-//			times.addElement(System.currentTimeMillis() - pStart);
-//		}
-//		System.out.println("Done loading previews after " + (System.currentTimeMillis() - start));
-//		
-//		Long total = (long)0.0;
-//		for(Long t: times){
-//			total = total + t;
-//		}
-//		
-//		System.out.println("Avg preview build time: " +(total / times.size()));
-//		
-//		
-//		
-//		System.out.println("building window");
-//		start = System.currentTimeMillis();
-//		leftList = new ListView<>();
-//		leftList.setPrefHeight(1000);
-//		obvRes = FXCollections.observableList(prevs);
-//		leftList.setItems(obvRes);
-//
-//		leftScroll = new ScrollPane();
-//		leftScroll.setPrefHeight(1000);
-//		leftScroll.setContent(leftList);
-//		leftScroll.setPadding(new Insets(10));
-//		layout.setLeft(leftScroll);
 
+		if(allIssues == null){
+			System.out.println("no issues found ");
+			allIssues = new ArrayList<Issue>();
+		}
+
+		//		System.out.println("generating previews");
+		//		start = System.currentTimeMillis();
+		//		prevs = new ArrayList<IssuePreview>();
+		//
+		//		Long pStart = (long) 0.0;
+		//		Vector<Long> times = new Vector<Long>();
+		//		
+		//		for(Issue i: allIssues){
+		//			pStart = System.currentTimeMillis();
+		//			prevs.add(new IssuePreview(i));
+		//			times.addElement(System.currentTimeMillis() - pStart);
+		//		}
+		//		System.out.println("Done loading previews after " + (System.currentTimeMillis() - start));
+		//		
+		//		Long total = (long)0.0;
+		//		for(Long t: times){
+		//			total = total + t;
+		//		}
+		//		
+		//		System.out.println("Avg preview build time: " +(total / times.size()));
+		//		
+		//		
+		//		
+		//		System.out.println("building window");
+		//		start = System.currentTimeMillis();
+		//		leftList = new ListView<>();
+		//		leftList.setPrefHeight(1000);
+		//		obvRes = FXCollections.observableList(prevs);
+		//		leftList.setItems(obvRes);
+		//
+		//		leftScroll = new ScrollPane();
+		//		leftScroll.setPrefHeight(1000);
+		//		leftScroll.setContent(leftList);
+		//		leftScroll.setPadding(new Insets(10));
+		//		layout.setLeft(leftScroll);
+
+		start = System.currentTimeMillis();
 		allVols = LocalDB.getAllVolumes();
+		System.out.println("volume loading took " + (System.currentTimeMillis()-start));
+
+		if(allVols == null){
+			allVols = new ArrayList<>();
+		}
 		volPreviews = new ArrayList<VolumePreview>();
-		
-		
+
 		for(Volume v: allVols){
 			volPreviews.add(new VolumePreview(v, allIssues));
 		}
-		
-//		volListView = new ListView<>();
-//		volListView.setPrefHeight(1000);
-//		volObvRes = FXCollections.observableList(volPreviews);
-//		volListView.setItems(volObvRes);
-				
-		TreeItem root = new TreeItem<VolumePreview>();
-		
-		root.setValue("Volumes");
-		root.setExpanded(true);
-		for(VolumePreview vp: volPreviews){
-			TreeItem temp = new VolumeCell(vp);
-			root.getChildren().add(temp);
-		}
-		TreeView treeView = new TreeView<VolumePreview>(root);
+
+
+		//		volListView = new ListView<>();
+		//		volListView.setPrefHeight(1000);
+		//		volObvRes = FXCollections.observableList(volPreviews);
+		//		volListView.setItems(volObvRes);
+
+		treeView = new TreeView<VolumePreview>(buildRoot());
 		treeView.setPrefWidth(500);
-		
+		treeView.setPrefHeight(950);
+
 		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem>() {
 
 			@Override
@@ -134,27 +140,31 @@ public class Main extends Application {
 						((VolumeCell) newValue).setIssues(allIssues);
 				} else {
 					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					Issue issue = ti.getValue().getIssue();
-					layout.setRight(new DetailView(issue));
+					if(ti.getValue().getIssue() != null){
+						Issue issue = ti.getValue().getIssue();
+						layout.setRight(new DetailView(issue));
+					} else System.out.println("something went wrong loading issue");
 				}
 				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
 				newValue.setExpanded(!expanded);
 			}
-			
+
 		});
+		
 		leftScroll = new ScrollPane();
 		leftScroll.setPrefHeight(1000);
+		leftScroll.setMaxHeight(1080);
 		//leftScroll.setContent(volListView);
-		//leftScroll.setContent(treeView);
+		leftScroll.setContent(treeView);
 		leftScroll.setPadding(new Insets(10));
-		
-		layout.setLeft(treeView);
+
+		layout.setLeft(leftScroll);
 		hbox = new HBox();
 		hbox.setPadding(new Insets(10));
 		addButton = new Button("Click here to add");
 		hbox.getChildren().add(addButton);
 		layout.setTop(hbox);
-		
+
 		addButton.setOnAction(e -> {
 			new AddComic(added);
 			updateLeft();
@@ -184,26 +194,50 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-//		org.json.JSONObject jo = CVrequest.getIssue("488852");
-//		Volume test = new Volume(jo.getJSONObject("volume"));
-//		LocalDB.addVolume(test);
-//		new VolumePreview(test);
-	
-		
+		//		org.json.JSONObject jo = CVrequest.getIssue("488852");
+		//		Volume test = new Volume(jo.getJSONObject("volume"));
+		//		LocalDB.addVolume(test);
+		//		new VolumePreview(test);
+
+
 		launch(args);
 		//System.out.println("to adjust");
-		
+
 		//System.exit(0);
 	}
 
 	public static void updateLeft(){
 		for(Issue i: added){
 			LocalDB.addIssue(i);
-			prevs.add(new IssuePreview(i));
+			allIssues.add(i);
+			int foundIndex = -1;
+			for(int j = 0; j < volPreviews.size(); j++){
+				if(volPreviews.get(j).getVolName().equals(i.getVolumeName())){
+					foundIndex = j;
+					volPreviews.get(j).update(allIssues);
+				}
+			}
+
+			if(foundIndex == -1){
+				volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
+			}
 		}
-		obvRes = FXCollections.observableList(prevs);
-		leftList.setItems(obvRes);
-		leftScroll.setContent(leftList);
+		treeView.setRoot(buildRoot());
 		added.clear();		
 	}
+
+	@SuppressWarnings("rawtypes")
+	public static TreeItem buildRoot(){
+		TreeItem root = new TreeItem<VolumePreview>();
+
+		root.setValue("Volumes");
+		root.setExpanded(true);
+		for(VolumePreview vp: volPreviews){
+			//vp.update(allIssues);
+			TreeItem temp = new VolumeCell(vp);
+			root.getChildren().add(temp);
+		}
+		return root;
+	}
+
 }
