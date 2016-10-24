@@ -17,7 +17,6 @@ import org.json.JSONObject;
 
 import model.Issue;
 import model.Volume;
-import org.apache.commons.lang.NumberUtils;
 import org.json.JSONException;
 import requests.CVImage;
 import requests.CVrequest;
@@ -587,6 +586,10 @@ public class LocalDB {
         return searchVolume("count_of_issues", inputValue, operator);
     }
 
+    public static ArrayList<Volume> searchVolumeByYear(String inputValue) throws JSONException, SQLException {
+        return searchVolume("start_year", inputValue, "=");
+    }
+
     public static ArrayList<Volume> searchVolumeByYear(String inputValue, String operator) throws JSONException, SQLException {
         return searchVolume("start_year", inputValue, operator);
     }
@@ -632,7 +635,7 @@ public class LocalDB {
 
     public static void main(String[] args) throws JSONException, SQLException {
 
-        test1();
+        testVolumeSearchQueries();
         //test2();
     }
 
@@ -644,7 +647,7 @@ public class LocalDB {
         System.out.println("Is string integer? " + s1.chars().allMatch(Character::isDigit));
     }
 
-    public static void test1() throws JSONException, SQLException {
+    public static void testVolumeSearchQueries() throws JSONException, SQLException {
         ArrayList<Volume> list = new ArrayList<>();
 
         System.out.println("(start LocalDB.searchVolumeByName)");
@@ -670,6 +673,13 @@ public class LocalDB {
 
         System.out.println("(start LocalDB.searchVolumeByYear)");
         list = LocalDB.searchVolumeByYear("2012", ">");
+        for (Volume element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchVolumeByYear) \n");
+
+        System.out.println("(start LocalDB.searchVolumeByYear)");
+        list = LocalDB.searchVolumeByYear("2016");
         for (Volume element : list) {
             System.out.println(list.toString());
         }
