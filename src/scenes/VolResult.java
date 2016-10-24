@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import model.Volume;
+import org.json.JSONException;
 import requests.CVImage;
 
 public class VolResult extends HBox {
@@ -20,7 +21,7 @@ public class VolResult extends HBox {
 	Volume vol;
 	
 	
-	public VolResult(Volume vol) {
+	public VolResult(Volume vol) throws JSONException {
 		super();
 		this.vol = vol;
 		
@@ -45,7 +46,7 @@ public class VolResult extends HBox {
 		getChildren().addAll(bp);
 	}
 	
-	public String getVolID(){
+	public String getVolID() throws JSONException{
 		return vol.getID();
 	}
 

@@ -18,11 +18,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import model.Issue;
+import org.json.JSONException;
 import requests.CVImage;
 
 public class DetailView extends BorderPane{
 
-	public DetailView(Issue issue) {
+	public DetailView(Issue issue) throws JSONException {
 		super();
 		
 		if(!issue.isFull())

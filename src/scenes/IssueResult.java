@@ -13,22 +13,23 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebView;
 import model.Issue;
+import org.json.JSONException;
 
 public class IssueResult extends VBox {
-	private Label text;
-	private Issue issue;
+	private Label mText;
+	private Issue mIssue;
 	
 	@FXML
 	private WebView desc;
 	
-	public IssueResult(Issue rhIssue) {
+	public IssueResult(Issue rhIssue) throws JSONException {
 		super();
-		this.issue = rhIssue;
+		this.mIssue = rhIssue;
 		
-		text = new Label();
-		text.setWrapText(true);
-		String info = "Issue# " + issue.getIssueNum()+ "\tDate: "  + issue.getCoverDate() + "\n" + issue.getName();
-		Document doc = Jsoup.parse(issue.getDescription());
+		mText = new Label();
+		mText.setWrapText(true);
+		String info = "Issue# " + mIssue.getIssueNum()+ "\tDate: "  + mIssue.getCoverDate() + "\n" + mIssue.getName();
+		Document doc = Jsoup.parse(mIssue.getDescription());
 		Elements element = doc.select("table").remove();
 		
 		String clean = Jsoup.clean(doc.body().html(), Whitelist.basic());
@@ -36,35 +37,35 @@ public class IssueResult extends VBox {
 		
 		String descript = Jsoup.parse(doc.toString()).text();
 		info += "\n" + descript;
-		text.setText(info);
-		text.setTextAlignment(TextAlignment.JUSTIFY);
-		text.setPrefSize(900, 200);
+		mText.setText(info);
+		mText.setTextAlignment(TextAlignment.JUSTIFY);
+		mText.setPrefSize(900, 200);
 		setMaxHeight(200);
 		/*desc = new WebView();
-		desc.getEngine().loadContent(issue.getDescription());
+		desc.getEngine().loadContent(mIssue.getDescription());
 		desc.setMaxHeight(200);
 		desc.setFontScale(0.75);*/
 		setPrefHeight(100);
-		getChildren().addAll(text);
+		getChildren().addAll(mText);
 		
 	}
 	
-	public Issue getIssue(){
-		return issue;
+	public Issue getmIssue(){
+		return mIssue;
 	}
 
 	/**
-	 * @return the text
+	 * @return the mText
 	 */
-	public Label getText() {
-		return text;
+	public Label getmText() {
+		return mText;
 	}
 
 	/**
-	 * @param text the text to set
+	 * @param mText the mText to set
 	 */
-	public void setText(Label text) {
-		this.text = text;
+	public void setmText(Label mText) {
+		this.mText = mText;
 	}
 	
 

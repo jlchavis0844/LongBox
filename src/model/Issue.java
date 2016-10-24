@@ -6,11 +6,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import localDB.LocalDB;
+import org.json.JSONException;
 import requests.*;
 
 public class Issue {
 	private boolean full = false;
-	private JSONObject jo;
+	private JSONObject jsonobject;
 	private String id;
 	private String name;
 	private String coverDate;
@@ -18,8 +19,8 @@ public class Issue {
 	private boolean local = false;
 
 
-	public Issue(JSONObject jo){
-		this.jo = jo;
+	public Issue(JSONObject jo) throws JSONException{
+		this.jsonobject = jo;
 		id = jo.get("id").toString();
 
 		if(check("name")){
@@ -45,22 +46,22 @@ public class Issue {
 		return id;
 	}
 
-	public Volume getVolume(){
+	public Volume getVolume() throws JSONException{
 		if(check("volume")){
-			return new Volume(jo.getJSONObject("volume"));
+			return new Volume(jsonobject.getJSONObject("volume"));
 		} else return null;
 	}
 
-	public String getVolumeName(){
+	public String getVolumeName() throws JSONException{
 		if(check("volume")){
-			JSONObject tempObj = jo.getJSONObject("volume");
+			JSONObject tempObj = jsonobject.getJSONObject("volume");
 			return tempObj.getString("name");
 		} else return null;
 	}
 	
-	public String getVolumeID(){
+	public String getVolumeID() throws JSONException{
 		if(check("volume")){
-			JSONObject tempObj = jo.getJSONObject("volume");
+			JSONObject tempObj = jsonobject.getJSONObject("volume");
 			return tempObj.get("id").toString();
 		} else return null;
 	}
@@ -73,39 +74,39 @@ public class Issue {
 		return coverDate;
 	}
 
-	public String getDescription(){
-		return jo.get("description").toString();
+	public String getDescription() throws JSONException{
+		return jsonobject.get("description").toString();
 	}
 
-	public void populate(){
+	public void populate() throws JSONException{
 		full = true;
-		jo = CVrequest.getIssue(getID());
+		jsonobject = CVrequest.getIssue(getID());
 	}
 
-	public JSONObject getFullObject(){
+	public JSONObject getFullObject() throws JSONException{
 		if(!full){
-			jo = CVrequest.getIssue(getID());
+			jsonobject = CVrequest.getIssue(getID());
 		}
-		return jo;
+		return jsonobject;
 	}
 
 	public boolean isFull(){
 		return full;
 	}
 
-	public String getDeck(){
+	public String getDeck() throws JSONException{
 		if(check("deck")){
-			return jo.getString("deck");
+			return jsonobject.getString("deck");
 		} else return null;
 	}
 
-	public String getMediumUrl(){
+	public String getMediumUrl() throws JSONException{
 		if(check("image")){
-			return jo.getJSONObject("image").get("medium_url").toString();
+			return jsonobject.getJSONObject("image").get("medium_url").toString();
 		} else return null;
 	}
 
-	public BufferedImage getMediumImg(){
+	public BufferedImage getMediumImg() throws JSONException{
 		if(local && check("medium")){
 			return CVImage.getLocalImage(id, "medium", LocalDB.ISSUE);
 		} else if(check("image")){
@@ -113,13 +114,13 @@ public class Issue {
 		} else return null;
 	}
 	
-	public String getThumbUrl(){
+	public String getThumbUrl() throws JSONException{
 		if(check("image")){
-			return jo.getJSONObject("image").getString("thumb_url");
+			return jsonobject.getJSONObject("image").getString("thumb_url");
 		} else return null;
 	}
 
-	public BufferedImage getThumbImg(){
+	public BufferedImage getThumbImg() throws JSONException{
 		if(check("thumb")){
 			return CVImage.getLocalImage(id, "thumb", LocalDB.ISSUE);
 		} else if(check("image")){
@@ -131,9 +132,9 @@ public class Issue {
 		return "issue#: "+issueNum+"\tid: "+id+"\t name: "+name+"\t\tcover date: "+coverDate;
 	}
 
-	public boolean check (String target){
-		if(jo.has(target) && !jo.isNull(target)){
-			String val = jo.get(target).toString();
+	public boolean check (String target) throws JSONException{
+		if(jsonobject.has(target) && !jsonobject.isNull(target)){
+			String val = jsonobject.get(target).toString();
 			if(val.equals("[]") || val.equals("null")){
 				return false;
 			} else {
@@ -149,12 +150,12 @@ public class Issue {
 		return issueNum;
 	}
 
-	public String getPerson(String credit){
+	public String getPerson(String credit) throws JSONException{
 		if(!check("person_credits")){
 			return null;
 		}
 
-		JSONArray ja = jo.getJSONArray("person_credits");
+		JSONArray ja = jsonobject.getJSONArray("person_credits");
 		String line = "";
 		String role = null;
 		int jasize = ja.length();

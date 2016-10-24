@@ -10,69 +10,74 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import model.Issue;
 import model.Volume;
+import org.json.JSONException;
 
-public class VolumePreview extends HBox{
-	private Volume vol;
-	private ImageView thumb;
-	private Label infoLbl;
+public class VolumePreview extends HBox {
 
-	public VolumePreview(Volume rhVol, ArrayList<Issue> issues) {
-		super();
+    private Volume volume;
+    private ImageView thumb;
+    private Label infoLbl;
 
-		vol = rhVol;
-		long start = System.currentTimeMillis();
-		BufferedImage bi = vol.getImage("thumb");
-		Image image = SwingFXUtils.toFXImage(bi, null);
-		thumb = new ImageView(image);
-		System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
-		thumb.setFitHeight(50);
-		thumb.setFitWidth(33);
+    public VolumePreview(Volume inputVolume, ArrayList<Issue> issues) throws JSONException {
+        super();
 
-		int counter = 0;
-		for(Issue i : issues){
-			if(i.getVolumeID().equals(vol.getID())){
-				counter++;
-			}
-		}
+        volume = inputVolume;
+        long start = System.currentTimeMillis();
+        BufferedImage bufferimage = volume.getImage("thumb");
+        if (bufferimage != null) {
+            Image image = SwingFXUtils.toFXImage(bufferimage, null);
+            thumb = new ImageView(image);
+            System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
+            thumb.setFitHeight(50);
+            thumb.setFitWidth(33);
 
-		String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
-				"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
+            int counter = 0;
+            for (Issue i : issues) {
+                if (i.getVolumeID().equals(volume.getID())) {
+                    counter++;
+                }
+            }
 
-		infoLbl = new Label(info);
-		getChildren().addAll(thumb, infoLbl);
-	}
+            String info = volume.getName() + "\n" + volume.getPublisher() + "     " + volume.getStartYear()
+                    + "\n" + counter + " out of " + volume.getCountofIssue() + " in collection";
 
-	public String getVolName(){
-		return vol.getName();
-	}
+            infoLbl = new Label(info);
+            getChildren().addAll(thumb, infoLbl);
+        }
 
-	public void update(ArrayList<Issue> issues){
-		int counter = 0;
-		for(Issue i : issues){
-			if(i.getVolumeID().equals(vol.getID())){
-				counter++;
-			}
+    }
 
-			String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
-					"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
-			infoLbl.setText(info);
-			getChildren().clear();
-			getChildren().addAll(thumb, infoLbl);
-		}
+    public String getVolName() {
+        return volume.getName();
+    }
 
-	}
+    public void update(ArrayList<Issue> issues) throws JSONException {
+        int counter = 0;
+        for (Issue i : issues) {
+            if (i.getVolumeID().equals(volume.getID())) {
+                counter++;
+            }
 
-	/**
-	 * @return the vol
-	 */
-	public Volume getVolume() {
-		return vol;
-	}
+            String info = volume.getName() + "\n" + volume.getPublisher() + "     " + volume.getStartYear()
+                    + "\n" + counter + " out of " + volume.getCountofIssue() + " in collection";
+            infoLbl.setText(info);
+            getChildren().clear();
+            getChildren().addAll(thumb, infoLbl);
+        }
 
-	/**
-	 * @param vol the vol to set
-	 */
-	public void setVolume(Volume vol) {
-		this.vol = vol;
-	}
+    }
+
+    /**
+     * @return the vol
+     */
+    public Volume getVolume() {
+        return volume;
+    }
+
+    /**
+     * @param vol the vol to set
+     */
+    public void setVolume(Volume vol) {
+        this.volume = vol;
+    }
 }

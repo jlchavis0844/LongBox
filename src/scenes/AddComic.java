@@ -2,6 +2,8 @@ package scenes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.*;
 import requests.CVrequest;
 import javafx.beans.value.ChangeListener;
@@ -18,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.JSONException;
 
 public class AddComic {
 	private Button srchButton;
@@ -63,11 +66,19 @@ public class AddComic {
 				VolResult temp = list.getSelectionModel().getSelectedItem();
 
 				if(temp != null){
-					vID = temp.getVolID();
+                                    try {
+                                        vID = temp.getVolID();
+                                    } catch (JSONException ex) {
+                                        Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
 				}
 
 				System.out.println("Fetching " + vID);
-				getIssues(vID);		
+                            try {		
+                                getIssues(vID);
+                            } catch (JSONException ex) {
+                                Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
+                            }
 			}
 		});
 
@@ -92,9 +103,13 @@ public class AddComic {
 		addButton = new Button("Add Issue");
 		addButton.setVisible(false);
 		addButton.setOnAction(e -> {
-			Issue iSel = issueList.getSelectionModel().getSelectedItem().getIssue();
+			Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
 			if(iSel != null){
-				System.out.println("Adding "+ iSel.getVolumeName() + " #" + iSel.getIssueNum());
+                            try {
+                                System.out.println("Adding "+ iSel.getVolumeName() + " #" + iSel.getIssueNum());
+                            } catch (JSONException ex) {
+                                Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
+                            }
 			} else System.out.println("issue is null");
 
 			addList.add(iSel);
@@ -106,7 +121,11 @@ public class AddComic {
 			addButton.setVisible(false);
 			scPane.setContent(list);
 			System.out.println(input.getText());
-			volSearch(input.getText(), pubName.getText());
+                    try {
+                        volSearch(input.getText(), pubName.getText());
+                    } catch (JSONException ex) {
+                        Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 		});
 
 		topBox.getChildren().addAll(input, pubName, srchButton, addButton);
@@ -122,7 +141,7 @@ public class AddComic {
 		window.showAndWait();
 	}
 
-	private void volSearch(String term, String pub){
+	private void volSearch(String term, String pub) throws JSONException{
 		ArrayList<Volume> vols;
 
 		if(pub.equals("") || pub == null){
@@ -143,7 +162,7 @@ public class AddComic {
 
 	}
 
-	public void  getIssues(String volID){
+	public void  getIssues(String volID) throws JSONException{
 		ArrayList<Issue> issues = CVrequest.getVolumeIDs(volID);
 		List<IssueResult> results = new ArrayList<IssueResult>();
 
@@ -163,7 +182,11 @@ public class AddComic {
 			@Override
 			public void changed(ObservableValue<? extends IssueResult> observable, IssueResult oldValue,
 					IssueResult newValue) {
-				layout.setCenter(new DetailView(newValue.getIssue()));
+                            try {
+                                layout.setCenter(new DetailView(newValue.getmIssue()));
+                            } catch (JSONException ex) {
+                                Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
+                            }
 				addButton.setVisible(true);
 			}
 		});

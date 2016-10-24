@@ -2,21 +2,19 @@ package application;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.json.simple.JSONObject;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import localDB.LocalDB;
 import model.Issue;
 import model.Volume;
-import requests.CVrequest;
 import scenes.AddComic;
 import scenes.DetailView;
 import scenes.IssuePreview;
@@ -30,6 +28,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.*;
+import org.json.JSONException;
 
 
 public class Main extends Application {
@@ -137,12 +136,20 @@ public class Main extends Application {
 			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
 				if(newValue instanceof VolumeCell){
 					if(!((VolumeCell) newValue).isFilled())
-						((VolumeCell) newValue).setIssues(allIssues);
+						try {
+                                                    ((VolumeCell) newValue).setIssues(allIssues);
+                                        } catch (JSONException ex) {
+                                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
 				} else {
 					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					if(ti.getValue().getIssue() != null){
-						Issue issue = ti.getValue().getIssue();
-						layout.setRight(new DetailView(issue));
+					if(ti.getValue().getmIssue() != null){
+						Issue issue = ti.getValue().getmIssue();
+                                            try {
+                                                layout.setRight(new DetailView(issue));
+                                            } catch (JSONException ex) {
+                                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
 					} else System.out.println("something went wrong loading issue");
 				}
 				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
@@ -167,7 +174,11 @@ public class Main extends Application {
 
 		addButton.setOnAction(e -> {
 			new AddComic(added);
-			updateLeft();
+                    try {
+                        updateLeft();
+                    } catch (JSONException ex) {
+                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                    }
 		});
 
 		/*new AddComic(added);
@@ -206,7 +217,7 @@ public class Main extends Application {
 		//System.exit(0);
 	}
 
-	public static void updateLeft(){
+	public static void updateLeft() throws JSONException{
 		for(Issue i: added){
 			LocalDB.addIssue(i);
 			allIssues.add(i);

@@ -21,20 +21,6 @@ public class Test {
 		try {
 			conn = DriverManager.getConnection(url);
 	        Statement stat = conn.createStatement();
-	        /*stat.executeUpdate("drop table if exists issue;");
-	        BufferedReader in = new BufferedReader(new FileReader("./issueTable.sql"));
-	        String longAssCommand = "";
-	        String temp;
-	        
-	        while ((temp = in.readLine()) != null){
-	        	longAssCommand += temp;
-	        }
-	        
-	        System.out.println(longAssCommand);
-	        in.close();
-	        
-	        
-	        stat.executeUpdate(longAssCommand);*/
 	        
 	        ResultSet rs = stat.executeQuery("PRAGMA table_info('issue');");
 	        while (rs.next()) {

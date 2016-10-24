@@ -6,6 +6,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONException;
 /**
  * This class if meant to be a static class used to make calls to PHP scripts that make the SQL calls<br>
  * There will be 4 main types of commands:<br>
@@ -20,7 +21,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  */
 public class SQLQuery {
 	
-	public static void test(){
+	public static void test() throws JSONException{
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 		jo.put("user", "testUser");
@@ -56,7 +57,7 @@ public class SQLQuery {
 	 * registration worked'<br>
 	 * "registration failed, user name $lbUser exists"<br>
 	 */
-	public static String register(String user, String pass){
+	public static String register(String user, String pass) throws JSONException{
 		JSONObject jo = new JSONObject();
 		jo.put("user", user);//write user
 		jo.put("password", pass);//write password
@@ -83,7 +84,7 @@ public class SQLQuery {
 	 * @return JSONObject with the following form:
 	 * {"id_list":["1234","5678","91011"]}
 	 */
-	public static JSONObject getIDs(String user, String pass, String timeStamp){
+	public static JSONObject getIDs(String user, String pass, String timeStamp) throws JSONException{
 		JSONObject jo = new JSONObject();
 		jo.put("user", user);
 		jo.put("password", pass);
@@ -112,7 +113,7 @@ public class SQLQuery {
 	 * on insert error: {"91011":"insert error, Duplicate entry 'user6-91011' for key 'PRIMARY'"}<br>
 	 * on insert success {"91011" : "2016-10-02 12:13:14"}
 	 */
-	public static JSONObject sendIDs(String user, String pass, String[] idArr){
+	public static JSONObject sendIDs(String user, String pass, String[] idArr) throws JSONException{
 		JSONObject retVal = null;
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
