@@ -63,14 +63,14 @@ public class Test {
         System.out.println("(end LocalDB.searchVolumeByPublisher) \n");
 
         System.out.println("(start LocalDB.searchVolumeByCountOfIssues)");
-        list = LocalDB.searchVolumeByCountOfIssues("25", "<");
+        list = LocalDB.searchVolumeByCountOfIssues("25", Operator.LESS_THAN);
         for (Volume element : list) {
             System.out.println(list.toString());
         }
         System.out.println("(end LocalDB.searchVolumeByCountOfIssues) \n");
 
         System.out.println("(start LocalDB.searchVolumeByYear)");
-        list = LocalDB.searchVolumeByYear("2012", ">");
+        list = LocalDB.searchVolumeByYear("2012", Operator.GREATER_THAN);
         for (Volume element : list) {
             System.out.println(list.toString());
         }
@@ -121,7 +121,7 @@ public class Test {
         System.out.println("(end LocalDB.searchIssueByIssueNumber) \n");
 
         System.out.println("(start LocalDB.searchIssueByIssueNumber with opertor)");
-        list = LocalDB.searchIssueByIssueNumber("35", ">");
+        list = LocalDB.searchIssueByIssueNumber("35", Operator.GREATER_THAN);
         for (Issue element : list) {
             System.out.println(list.toString());
         }

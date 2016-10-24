@@ -21,9 +21,62 @@ import org.json.JSONException;
 import requests.CVImage;
 import requests.CVrequest;
 
-public class LocalDB {
 
+/**
+Operator	Description	Example
+=	Checks if the values of two operands are equal or not, if yes then condition becomes true.	(a = b) is not true.
+!=	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a != b) is true.
+<>	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a <> b) is true.
+>	Checks if the value of left operand is greater than the value of right operand, if yes then condition becomes true.	(a > b) is not true.
+<	Checks if the value of left operand is less than the value of right operand, if yes then condition becomes true.	(a < b) is true.
+>=	Checks if the value of left operand is greater than or equal to the value of right operand, if yes then condition becomes true.	(a >= b) is not true.
+<=	Checks if the value of left operand is less than or equal to the value of right operand, if yes then condition becomes true.	(a <= b) is true.
+!<	Checks if the value of left operand is not less than the value of right operand, if yes then condition becomes true.	(a !< b) is false.
+!>	Checks if the value of left operand is not greater than the value of right operand, if yes then condition becomes true.	(a !> b) is true.
+
+Operator	Description
+ALL	The ALL operator is used to compare a value to all values in another value set.
+AND	The AND operator allows the existence of multiple conditions in an SQL statement's WHERE clause.
+ANY	The ANY operator is used to compare a value to any applicable value in the list according to the condition.
+BETWEEN	The BETWEEN operator is used to search for values that are within a set of values, given the minimum value and the maximum value.
+EXISTS	The EXISTS operator is used to search for the presence of a row in a specified table that meets certain criteria.
+IN	The IN operator is used to compare a value to a list of literal values that have been specified.
+LIKE	The LIKE operator is used to compare a value to similar values using wildcard operators.
+NOT	The NOT operator reverses the meaning of the logical operator with which it is used. Eg: NOT EXISTS, NOT BETWEEN, NOT IN, etc. This is a negate operator.
+OR	The OR operator is used to combine multiple conditions in an SQL statement's WHERE clause.
+IS NULL	The NULL operator is used to compare a value with a NULL value.
+UNIQUE	The UNIQUE operator searches every row of a specified table for uniqueness (no duplicates).
+*/
+
+interface Operator {
+
+    String EQUAL = "=";
+    String NOT_EQUAL = "!=";
+    String GREATER_THAN = ">";
+    String LESS_THAN = "<";
+    String LESS_THAN_OR_EQUAL = "<=";
+    String GREATER_THAN_OR_EQUAL = ">=";
+    String NOT_LESS_THAN = "!<";
+    String NOT_GREATER_THAN = "!>";
+    String BETWEEN = "<>";  
+    
+    String WORD_ALL = "ALL";
+    String WORD_AND = "AND";
+    String WORD_BETWEEN = "BETWEEN";
+    String WORD_EXIT = "EXIST";
+    String WORD_IN = "IN";
+    String WORD_LIKE = "LIKE";
+    String WORD_NOT = "NOT";
+    String WORD_OR = "OR";
+    String WORD_IS_NULL = "IS NULL";
+    String WORD_UNIQUE = "UNIQUE";
+    
+}
+
+public class LocalDB {
+    
     private static String mURL = "jdbc:sqlite:./DigLongBox.db";
+    private static String DATE_FORMAT = "MM/dd/yyyy h:mm:ss a";
     private static Connection mConnection;
     private static Statement mStatement;
     public static int ISSUE = 0;
@@ -42,7 +95,7 @@ public class LocalDB {
             //stat.executeUpdate("VACUUM");
             int id = inputJSONObject.getInt("id");
             Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
             String formattedDate = sdf.format(date);
 
             inputJSONObject.put("timeStamp", formattedDate);
@@ -117,7 +170,7 @@ public class LocalDB {
             //stat.executeUpdate("VACUUM");
             String id = vol.getID();
             Date date = new Date();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
             String formattedDateString = simpleDateFormat.format(date);
 
             jsonObject.put("JSON", jsonObject.toString());
@@ -379,7 +432,7 @@ public class LocalDB {
     }
 
     public static boolean loadSQL(String path) {
-        String url = "jdbc:sqlite:./DigLongBox.db";
+        String url = mURL;
         try {
             mConnection = DriverManager.getConnection(url);
             mStatement = mConnection.createStatement();
@@ -587,7 +640,7 @@ public class LocalDB {
     }
 
     public static ArrayList<Volume> searchVolumeByYear(String inputValue) throws JSONException, SQLException {
-        return searchVolume("start_year", inputValue, "=");
+        return searchVolume("start_year", inputValue, Operator.EQUAL);
     }
 
     public static ArrayList<Volume> searchVolumeByYear(String inputValue, String operator) throws JSONException, SQLException {
@@ -639,7 +692,7 @@ public class LocalDB {
     }
     
        public static ArrayList<Issue> searchIssueByIssueNumber(String inputValue) throws JSONException, SQLException {
-        return searchIssue("issue_number", inputValue, "=");
+        return searchIssue("issue_number", inputValue, Operator.EQUAL);
     }
 
     public static ArrayList<Issue> searchIssueByName(String inputValue) throws JSONException, SQLException {
@@ -692,30 +745,5 @@ public class LocalDB {
 
 }
 
-/*
-Operator	Description
-ALL	The ALL operator is used to compare a value to all values in another value set.
-AND	The AND operator allows the existence of multiple conditions in an SQL statement's WHERE clause.
-ANY	The ANY operator is used to compare a value to any applicable value in the list according to the condition.
-BETWEEN	The BETWEEN operator is used to search for values that are within a set of values, given the minimum value and the maximum value.
-EXISTS	The EXISTS operator is used to search for the presence of a row in a specified table that meets certain criteria.
-IN	The IN operator is used to compare a value to a list of literal values that have been specified.
-LIKE	The LIKE operator is used to compare a value to similar values using wildcard operators.
-NOT	The NOT operator reverses the meaning of the logical operator with which it is used. Eg: NOT EXISTS, NOT BETWEEN, NOT IN, etc. This is a negate operator.
-OR	The OR operator is used to combine multiple conditions in an SQL statement's WHERE clause.
-IS NULL	The NULL operator is used to compare a value with a NULL value.
-UNIQUE	The UNIQUE operator searches every row of a specified table for uniqueness (no duplicates).
-*/
 
-/*
-Operator	Description	Example
-=	Checks if the values of two operands are equal or not, if yes then condition becomes true.	(a = b) is not true.
-!=	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a != b) is true.
-<>	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a <> b) is true.
->	Checks if the value of left operand is greater than the value of right operand, if yes then condition becomes true.	(a > b) is not true.
-<	Checks if the value of left operand is less than the value of right operand, if yes then condition becomes true.	(a < b) is true.
->=	Checks if the value of left operand is greater than or equal to the value of right operand, if yes then condition becomes true.	(a >= b) is not true.
-<=	Checks if the value of left operand is less than or equal to the value of right operand, if yes then condition becomes true.	(a <= b) is true.
-!<	Checks if the value of left operand is not less than the value of right operand, if yes then condition becomes true.	(a !< b) is false.
-!>	Checks if the value of left operand is not greater than the value of right operand, if yes then condition becomes true.	(a !> b) is true.
-*/
+
