@@ -627,11 +627,11 @@ public class LocalDB {
     }
 
     public static ArrayList<Volume> searchVolumeByName(String inputValue) throws JSONException, SQLException {
-        return searchVolume("name", inputValue, "");
+        return searchVolume("name", "%" + inputValue + "%", Operator.WORD_LIKE);
     }
 
     public static ArrayList<Volume> searchVolumeByPublisher(String inputValue) throws JSONException, SQLException {
-        return searchVolume("publisher", inputValue, "");
+        return searchVolume("publisher", "%" + inputValue + "%", Operator.WORD_LIKE);
     }
 
     public static ArrayList<Volume> searchVolumeByCountOfIssues(String inputValue, String operator) throws JSONException, SQLException {
@@ -662,7 +662,8 @@ public class LocalDB {
             //SELECT * FROM volume WHERE count_of_issues > 5;
             sql += columnName + " " + operator + inputValue;
         } else {
-            sql += columnName + " LIKE " + "'" + "%" + inputValue + "%" + "'" + ";";
+            //sql += columnName + " LIKE " + "'" + "%" + inputValue + "%" + "'" + ";";
+            sql += columnName + " " + operator  + " " + "'" + inputValue  + "'" + ";";
 
         }
 
@@ -695,11 +696,11 @@ public class LocalDB {
     }
 
     public static ArrayList<Issue> searchIssueByName(String inputValue) throws JSONException, SQLException {
-        return searchIssue("name", inputValue, "");
+        return searchIssue("name", "%" + inputValue + "%", Operator.WORD_LIKE);
     }
 
       public static ArrayList<Issue> searchIssueByVolumeName(String inputValue) throws JSONException, SQLException {
-        return searchIssue("volName", inputValue, "");
+        return searchIssue("volName", "%" + inputValue + "%", Operator.WORD_LIKE);
     }
     
     public static ArrayList<Issue> searchIssue(String inputColumn, String inputValue, String operator) throws JSONException, SQLException {
@@ -718,7 +719,8 @@ public class LocalDB {
             //SELECT * FROM volume WHERE count_of_issues > 5;
             sql += columnName + " " + operator + inputValue;
         } else {
-            sql += columnName + " LIKE " + "'" + "%" + inputValue + "%" + "'" + ";";
+            //sql += columnName + " LIKE " + "'" + "%" + inputValue + "%" + "'" + ";";
+            sql += columnName +  " " + operator + " " + "'" + inputValue + "'" + ";";
 
         }
 

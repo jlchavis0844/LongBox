@@ -90,8 +90,8 @@ public class Test {
      * @throws java.sql.SQLException
      */
     public static void main(String[] args) throws JSONException, SQLException {
-        //testConnection();
-        //testVolumeSearchQueries();
+        testConnection();
+        testVolumeSearchQueries();
         testIssueSearchQueries();
 
     }
