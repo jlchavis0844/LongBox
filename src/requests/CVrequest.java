@@ -224,7 +224,7 @@ public class CVrequest {
 	}
 
 	/**
-	 * Returns infomation for the given Volume ID
+	 * Returns information for the given Volume ID
 	 * @param volID String of the volume ID
 	 * @return JSONObject with the following fields:<br>
 	 * name<br>start_year<br>publisher<br>image<br>count_of_issues<br>id

@@ -1,1 +1,120 @@
-/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.root{
+    -fx-background-color:#2B2B2B;
+    -fx-text-fill:#BBBBBB;
+
+
+    /* Used for the inside of text boxes, password boxes, lists, trees, and tables.*/  
+    -fx-control-inner-background: #3C3F41;
+
+    /* The color to use in ListView/TreeView/TableView to indicate hover. */
+    -fx-cell-hover-color: #0D293E;
+
+    /* The color of the font */
+    -fx-text-inner-color: #FFFFFF;
+}
+
+
+/**************************
+           Label
+Default label look
+***************************/
+.label{
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+}
+
+
+
+/**************************
+           Button
+Default button theme
+***************************/
+
+.button{
+    -fx-background-color: linear-gradient(#505356, #393B3D);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+.button:hover{
+    -fx-background-color: linear-gradient(#53585A, #424749);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+.button:armed {
+    -fx-background-color: linear-gradient(#4A6BA8, #415270);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+
+
+
+/**************************
+           Hyperlink
+Links to Comic Vine
+***************************/
+
+.hyperlink {
+    -fx-cursor: hand;
+    -fx-content-display: LEFT;
+    -fx-text-fill: #009999;
+    -fx-font-family: "Arial";
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+
+
+
+/********************************************
+          Text Field
+Searching fields
+*********************************************/
+.text-field{
+    -fx-background-color: #49454A;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+
+
+
+/********************************************
+           Tree View | Tree Cell
+The collection LIST (not tree)
+*********************************************/
+.tree-view {
+    -fx-background-color: -fx-control-inner-background;
+}
+
+.tree-view .scroll-bar:vertical{
+
+}
+
+.tree-view .scroll-bar:horizontal{
+
+}
+
+.tree-cell {
+    -fx-background-color: -fx-control-inner-background;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.tree-cell:filled:hover {
+    -fx-background-color: -fx-cell-hover-color;
+    -fx-text-fill: -fx-text-inner-color;
+}

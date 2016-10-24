@@ -17,8 +17,11 @@ import localDB.LocalDB;
 import model.Issue;
 import model.Volume;
 import requests.CVrequest;
+import requests.CVrequestAsync;
+import requests.MarvelRequest;
 import scenes.AddComic;
 import scenes.DetailView;
+import scenes.IssueLoadScreen;
 import scenes.IssuePreview;
 import scenes.IssueResult;
 import scenes.VolResult;
@@ -140,7 +143,7 @@ public class Main extends Application {
 						((VolumeCell) newValue).setIssues(allIssues);
 				} else {
 					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					if(ti.getValue().getIssue() != null){
+					if(ti.getValue() != null){
 						Issue issue = ti.getValue().getIssue();
 						layout.setRight(new DetailView(issue));
 					} else System.out.println("something went wrong loading issue");
@@ -186,8 +189,12 @@ public class Main extends Application {
 		details.getChildren().addAll(vec);*/
 
 		//Scene scene = new Scene(new ScrollPane(details), 1900, 1050);
-
+		
 		Scene scene = new Scene(layout, 1900, 1050);
+		
+		String style= getClass().getResource("application.css").toExternalForm();
+		//addButton.getStylesheets().add(style);
+		scene.getStylesheets().add(style);
 		window.setScene(scene);
 		window.show();
 		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
@@ -198,30 +205,18 @@ public class Main extends Application {
 		//		Volume test = new Volume(jo.getJSONObject("volume"));
 		//		LocalDB.addVolume(test);
 		//		new VolumePreview(test);
-
-
+		//MarvelRequest.test();
+//		ArrayList<Volume> vols = CVrequestAsync.searchVolume("Batman", "DC");
+//		for(Volume v: vols)
+//			System.out.println(v.toString());
 		launch(args);
 		//System.out.println("to adjust");
 
-		//System.exit(0);
+		System.exit(0);
 	}
 
 	public static void updateLeft(){
-		for(Issue i: added){
-			LocalDB.addIssue(i);
-			allIssues.add(i);
-			int foundIndex = -1;
-			for(int j = 0; j < volPreviews.size(); j++){
-				if(volPreviews.get(j).getVolName().equals(i.getVolumeName())){
-					foundIndex = j;
-					volPreviews.get(j).update(allIssues);
-				}
-			}
-
-			if(foundIndex == -1){
-				volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
-			}
-		}
+		new IssueLoadScreen(added, allIssues, volPreviews);
 		treeView.setRoot(buildRoot());
 		added.clear();		
 	}

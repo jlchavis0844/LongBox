@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import model.*;
 import requests.CVrequest;
+import requests.CVrequestAsync;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -128,7 +129,7 @@ public class AddComic {
 		if(pub.equals("") || pub == null){
 			vols = CVrequest.searchVolume(term);
 		} else {
-			vols = CVrequest.searchVolume(term, pub);
+			vols = CVrequestAsync.searchVolume(term, pub);
 		}
 
 		List<VolResult> results = new ArrayList<VolResult>();

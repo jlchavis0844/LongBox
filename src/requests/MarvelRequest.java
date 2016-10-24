@@ -23,8 +23,7 @@ public class MarvelRequest {
 		String stringToHash = timeStamp + privateKey + publicKey;
 		String hash = DigestUtils.md5Hex(stringToHash);
 
-		//String url = String.format("http://gateway.marvel.com/v1/public/characters?ts=%d&apikey=%s&hash=%s&limit=%d"
-		//, timeStamp, publicKey, hash, limit);
+		String url = String.format("http://gateway.marvel.com/v1/public/characters?ts=%d&apikey=%s&hash=%s&limit=%d", timeStamp, publicKey, hash, 10);
 		String query = "http://gateway.marvel.com/v1/public/series";
 		
 		try {
@@ -36,7 +35,10 @@ public class MarvelRequest {
 					.queryString("ts",timeStamp)
 					.queryString("hash", hash) 
 					.asJson().getBody();
-			
+			System.out.println("apikey,"+ publicKey);
+			System.out.println("ts, " + timeStamp);
+			System.out.println("hash, "+ hash);
+			System.out.println(url);
 			System.out.println(response.toString());
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
