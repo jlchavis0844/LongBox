@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import model.Issue;
 import model.Volume;
 import org.json.JSONException;
 
@@ -40,9 +41,10 @@ public class Test {
 
     /**
      * test various search queries for volume
+     *
      * @throws org.json.JSONException
      * @throws java.sql.SQLException
-     */    
+     */
     public static void testVolumeSearchQueries() throws JSONException, SQLException {
         ArrayList<Volume> list = new ArrayList<>();
 
@@ -88,7 +90,51 @@ public class Test {
      * @throws java.sql.SQLException
      */
     public static void main(String[] args) throws JSONException, SQLException {
-        testConnection();
-        testVolumeSearchQueries();
+        //testConnection();
+        //testVolumeSearchQueries();
+        testIssueSearchQueries();
+
+    }
+
+    public static void testIssueSearchQueries() throws JSONException, SQLException {
+        ArrayList<Issue> list = new ArrayList<>();
+
+        System.out.println("(start LocalDB.searchIssueByName)");
+        list = LocalDB.searchIssueByName("I Am Gotham Part Four");
+        for (Issue element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchIssueByName) \n");
+
+        System.out.println("(start LocalDB.searchIssueByName)");
+        list = LocalDB.searchIssueByName("Gotham");
+        for (Issue element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchIssueByName) \n");
+
+        System.out.println("(start LocalDB.searchIssueByIssueNumber)");
+        list = LocalDB.searchIssueByIssueNumber("10");
+        for (Issue element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchIssueByIssueNumber) \n");
+
+        System.out.println("(start LocalDB.searchIssueByIssueNumber with opertor)");
+        list = LocalDB.searchIssueByIssueNumber("35", ">");
+        for (Issue element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchIssueByIssueNumber with opertor) \n");
+
+        //searchIssueByVolumeName
+         System.out.println("(start LocalDB.searchIssueByVolumeName)");
+        list = LocalDB.searchIssueByVolumeName("Old Man Logan");
+        for (Issue element : list) {
+            System.out.println(list.toString());
+        }
+        System.out.println("(end LocalDB.searchIssueByVolumeName) \n");
+
+        
     }
 }

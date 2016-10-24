@@ -633,57 +633,89 @@ public class LocalDB {
         return resultVolume;
     }
 
-    public static void main(String[] args) throws JSONException, SQLException {
-
-        testVolumeSearchQueries();
-        //test2();
+    //----------------------------------------------issues--------------------------------
+    public static ArrayList<Issue> searchIssueByIssueNumber(String inputValue, String operator) throws JSONException, SQLException {
+        return searchIssue("issue_number", inputValue, operator);
+    }
+    
+       public static ArrayList<Issue> searchIssueByIssueNumber(String inputValue) throws JSONException, SQLException {
+        return searchIssue("issue_number", inputValue, "=");
     }
 
-    public static void test2() {
-        String a = "a";
-        String s1 = "1";
-
-        System.out.println("Is string integer? " + a.chars().allMatch(Character::isDigit));
-        System.out.println("Is string integer? " + s1.chars().allMatch(Character::isDigit));
+    public static ArrayList<Issue> searchIssueByName(String inputValue) throws JSONException, SQLException {
+        return searchIssue("name", inputValue, "");
     }
 
-    public static void testVolumeSearchQueries() throws JSONException, SQLException {
-        ArrayList<Volume> list = new ArrayList<>();
-
-        System.out.println("(start LocalDB.searchVolumeByName)");
-        list = LocalDB.searchVolumeByName("batman");
-        for (Volume element : list) {
-            System.out.println(list.toString());
-        }
-        System.out.println("(end LocalDB.searchVolumeByName) \n");
-
-        System.out.println("(start LocalDB.searchVolumeByPublisher)");
-        list = LocalDB.searchVolumeByPublisher("Marvel");
-        for (Volume element : list) {
-            System.out.println(list.toString());
-        }
-        System.out.println("(end LocalDB.searchVolumeByPublisher) \n");
-
-        System.out.println("(start LocalDB.searchVolumeByCountOfIssues)");
-        list = LocalDB.searchVolumeByCountOfIssues("25", "<");
-        for (Volume element : list) {
-            System.out.println(list.toString());
-        }
-        System.out.println("(end LocalDB.searchVolumeByCountOfIssues) \n");
-
-        System.out.println("(start LocalDB.searchVolumeByYear)");
-        list = LocalDB.searchVolumeByYear("2012", ">");
-        for (Volume element : list) {
-            System.out.println(list.toString());
-        }
-        System.out.println("(end LocalDB.searchVolumeByYear) \n");
-
-        System.out.println("(start LocalDB.searchVolumeByYear)");
-        list = LocalDB.searchVolumeByYear("2016");
-        for (Volume element : list) {
-            System.out.println(list.toString());
-        }
-        System.out.println("(end LocalDB.searchVolumeByYear) \n");
+      public static ArrayList<Issue> searchIssueByVolumeName(String inputValue) throws JSONException, SQLException {
+        return searchIssue("volName", inputValue, "");
     }
+    
+    public static ArrayList<Issue> searchIssue(String inputColumn, String inputValue, String operator) throws JSONException, SQLException {
+        ArrayList<Issue> resultIssue = new ArrayList<>();
+
+        String columnName = inputColumn;
+
+        mConnection = DriverManager.getConnection(mURL);
+        mStatement = mConnection.createStatement();
+
+        String searchValue = inputValue;
+        String sql = "SELECT JSON FROM issue WHERE ";
+
+        if (inputValue.chars().allMatch(Character::isDigit)) {
+
+            //SELECT * FROM volume WHERE count_of_issues > 5;
+            sql += columnName + " " + operator + inputValue;
+        } else {
+            sql += columnName + " LIKE " + "'" + "%" + inputValue + "%" + "'" + ";";
+
+        }
+
+        PreparedStatement pre = mConnection.prepareStatement(sql);
+
+        ResultSet rs = pre.executeQuery();
+        ResultSetMetaData meta = rs.getMetaData();
+
+        String value = "";
+        JSONObject tObj = null;
+        Issue issue = null;
+
+        while (rs.next()) {
+            value = rs.getString(1);
+            tObj = new JSONObject(value);
+            issue = new Issue(tObj);
+            resultIssue.add(issue);
+        }
+
+        return resultIssue;
+    }
+
 
 }
+
+/*
+Operator	Description
+ALL	The ALL operator is used to compare a value to all values in another value set.
+AND	The AND operator allows the existence of multiple conditions in an SQL statement's WHERE clause.
+ANY	The ANY operator is used to compare a value to any applicable value in the list according to the condition.
+BETWEEN	The BETWEEN operator is used to search for values that are within a set of values, given the minimum value and the maximum value.
+EXISTS	The EXISTS operator is used to search for the presence of a row in a specified table that meets certain criteria.
+IN	The IN operator is used to compare a value to a list of literal values that have been specified.
+LIKE	The LIKE operator is used to compare a value to similar values using wildcard operators.
+NOT	The NOT operator reverses the meaning of the logical operator with which it is used. Eg: NOT EXISTS, NOT BETWEEN, NOT IN, etc. This is a negate operator.
+OR	The OR operator is used to combine multiple conditions in an SQL statement's WHERE clause.
+IS NULL	The NULL operator is used to compare a value with a NULL value.
+UNIQUE	The UNIQUE operator searches every row of a specified table for uniqueness (no duplicates).
+*/
+
+/*
+Operator	Description	Example
+=	Checks if the values of two operands are equal or not, if yes then condition becomes true.	(a = b) is not true.
+!=	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a != b) is true.
+<>	Checks if the values of two operands are equal or not, if values are not equal then condition becomes true.	(a <> b) is true.
+>	Checks if the value of left operand is greater than the value of right operand, if yes then condition becomes true.	(a > b) is not true.
+<	Checks if the value of left operand is less than the value of right operand, if yes then condition becomes true.	(a < b) is true.
+>=	Checks if the value of left operand is greater than or equal to the value of right operand, if yes then condition becomes true.	(a >= b) is not true.
+<=	Checks if the value of left operand is less than or equal to the value of right operand, if yes then condition becomes true.	(a <= b) is true.
+!<	Checks if the value of left operand is not less than the value of right operand, if yes then condition becomes true.	(a !< b) is false.
+!>	Checks if the value of left operand is not greater than the value of right operand, if yes then condition becomes true.	(a !> b) is true.
+*/
