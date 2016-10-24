@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import org.json.JSONObject;
-
 import model.Issue;
 import model.Volume;
 import org.json.JSONException;
@@ -509,7 +508,7 @@ public class LocalDB {
             mStatement = mConnection.createStatement();
 
             String query = "SELECT " + key + " FROM ? WHERE id = ?;";
-            String table = (type == 0) ? "issue" : "volume";
+            String table = ((type == 0) ? "issue" : "volume");
             PreparedStatement pre = mConnection.prepareStatement(query);
             pre.setString(1, table);
             pre.setString(2, id);
@@ -726,8 +725,7 @@ public class LocalDB {
         PreparedStatement pre = mConnection.prepareStatement(sql);
 
         ResultSet rs = pre.executeQuery();
-        ResultSetMetaData meta = rs.getMetaData();
-
+        
         String value = "";
         JSONObject tObj = null;
         Issue issue = null;
