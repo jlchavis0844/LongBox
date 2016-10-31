@@ -2,6 +2,7 @@ package model;
 
 import java.awt.image.BufferedImage;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -98,34 +99,49 @@ public class Issue {
 			return jo.getString("deck");
 		} else return null;
 	}
-
-	public String getMediumUrl(){
-		if(check("image")){
-			return jo.getJSONObject("image").get("medium_url").toString();
-		} else return null;
-	}
-
-	public BufferedImage getMediumImg(){
-		if(local && check("medium")){
-			return CVImage.getLocalImage(id, "medium", LocalDB.ISSUE);
-		} else if(check("image")){
-			return CVImage.getRemoteImage(getMediumUrl());
-		} else return null;
-	}
 	
-	public String getThumbUrl(){
-		if(check("image")){
-			return jo.getJSONObject("image").getString("thumb_url");
+	public String getImgURL(String size){
+		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
+		if(ArrayUtils.contains(sizes, size) && jo.getJSONObject("images").has(size)){
+			return jo.getJSONObject("image").getString(size + "_url");
 		} else return null;
 	}
 
-	public BufferedImage getThumbImg(){
-		if(check("thumb")){
-			return CVImage.getLocalImage(id, "thumb", LocalDB.ISSUE);
-		} else if(check("image")){
-			return CVImage.getRemoteImage(getThumbUrl());
+	public BufferedImage getLocalImg(String size){
+		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
+		JSONObject tJO = jo.getJSONObject("image");
+		if(tJO.has(size) && ArrayUtils.contains(sizes, size)){
+			return CVImage.getLocalIssueImg(id, size);
 		} else return null;
 	}
+//	
+//	public String getMediumUrl(){
+//		if(check("image")){
+//			return jo.getJSONObject("image").get("medium_url").toString();
+//		} else return null;
+//	}
+//
+//	public BufferedImage getMediumImg(){
+//		if(local && check("medium")){
+//			return CVImage.getLocalIssueImg(id, "medium");
+//		} else if(check("image")){
+//			return CVImage.getRemoteImage(getMediumUrl());
+//		} else return null;
+//	}
+//	
+//	public String getThumbUrl(){
+//		if(check("image")){
+//			return jo.getJSONObject("image").getString("thumb_url");
+//		} else return null;
+//	}
+//
+//	public BufferedImage getThumbImg(){
+//		if(check("thumb")){
+//			return CVImage.getLocalIssueImg(id, "thumb");
+//		} else if(check("image")){
+//			return CVImage.getRemoteImage(getThumbUrl());
+//		} else return null;
+//	}
 
 	public String toString(){
 		return "issue#: "+issueNum+"\tid: "+id+"\t name: "+name+"\t\tcover date: "+coverDate;

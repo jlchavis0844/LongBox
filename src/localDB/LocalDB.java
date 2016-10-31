@@ -102,7 +102,7 @@ public class LocalDB {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} /*finally {
+		} finally {
 			try {
 				if(conn.isClosed() == false){
 					conn.close();
@@ -115,7 +115,7 @@ public class LocalDB {
 				e.printStackTrace();
 			}	
 
-		}*/
+		}
 		return true;
 	}
 	
@@ -126,7 +126,7 @@ public class LocalDB {
 		try {
 			conn = DriverManager.getConnection(url);
 			stat = conn.createStatement();
-			JSONObject jo = vol.getVolume();
+			JSONObject jo = vol.getJSONObject();
 			//stat.executeUpdate("DELETE FROM issue;");
 			//stat.executeUpdate("VACUUM");
 			String id = vol.getID();
@@ -279,7 +279,7 @@ public class LocalDB {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}/*finally {
+		} finally {
 			try {
 				if(conn.isClosed() == false){
 					conn.close();
@@ -292,7 +292,7 @@ public class LocalDB {
 				e.printStackTrace();
 			}	
 
-		}*/
+		}
 		return true;
 	}
 
@@ -300,25 +300,25 @@ public class LocalDB {
 		ResultSet rs = null;
 		try {
 			conn = DriverManager.getConnection(url);
-			Statement stat = conn.createStatement();
-			rs = stat.executeQuery(str);
+			Statement stmt = conn.createStatement();
+			rs = stmt.executeQuery(str);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}/*finally {
-			try {
-				if(conn.isClosed() == false){
-					conn.close();
-				}
-				if(stat.isClosed() == false){
-					stat.close();
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
+		}finally {
+//			try {
+//				if(conn.isClosed() == false){
+//					conn.close();
+//				}
+////				if(stat.isClosed() == false){
+////					stat.close();
+////				}
+//			} catch (SQLException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}	
 
-		}*/
+		}
 		return rs;
 	}
 
