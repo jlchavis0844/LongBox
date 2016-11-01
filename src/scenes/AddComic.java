@@ -26,6 +26,7 @@ public class AddComic {
 	private Button srchButton;
 	private Button addButton;
 	private Button backButton;
+	private Button deleteButton;
 	private Button removeButton;
 	private BorderPane layout;
 	private HBox topBox;
@@ -105,10 +106,11 @@ public class AddComic {
 		addButton = new Button("Add Issue");
 		backButton = new Button("Back");
 		removeButton = new Button("Remove");
+		deleteButton = new Button("Delete");
 		addButton.setVisible(false);
 		backButton.setVisible(false);
 		removeButton.setVisible(false);
-		
+		deleteButton.setVisible(false);
 		
 		addButton.setOnAction(e -> {
 			Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
@@ -123,6 +125,7 @@ public class AddComic {
 			addList.add(iSel);
 			addButton.setVisible(false);
             removeButton.setVisible(true);
+            backButton.setVisible(true);
 		});
 
 
@@ -135,7 +138,6 @@ public class AddComic {
                     } catch (JSONException ex) {
                         Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
                     }
-            backButton.setVisible(true);
 		});
 		
 		backButton.setOnAction(e -> {
@@ -143,16 +145,35 @@ public class AddComic {
 			scPane.setContent(list);
 			backButton.setVisible(false);
 			removeButton.setVisible(false);
+			deleteButton.setVisible(false);
 		});
 		
-		// remove the item that just got added to the addList
+		// get the issue that user selected
+		// loop through the addList and add all issue to tempList
+		// except the user selected issue. 
+		deleteButton.setOnAction(e -> {		
+			Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
+			ArrayList<Issue> tempList = new ArrayList<Issue>();
+			for(int i = 0; i < addList.size(); i++){
+				if(iSel.equals(addList.get(i))){
+					// we skip because this item should not be in new list
+					continue;
+				}
+				tempList.add(addList.get(i));
+			}
+			addList = tempList;		
+			deleteButton.setVisible(false);
+			backButton.setVisible(true);
+		});
+		
 		removeButton.setOnAction(e -> {		
 			addList.remove(addList.size()-1);
             removeButton.setVisible(false);
             addButton.setVisible(true);
+            backButton.setVisible(true);
 		});
 
-		topBox.getChildren().addAll(input, pubName, srchButton, addButton, backButton, removeButton);
+		topBox.getChildren().addAll(input, pubName, srchButton, addButton, backButton, removeButton, deleteButton);
 		//topBox.getChildren().addAll(input, pubName, srchButton, addButton);
 
 		//layout.setPadding(new javafx.geometry.Insets(10));
@@ -194,7 +215,7 @@ public class AddComic {
 		for(Issue i: issues){
 			results.add(new IssueResult(i));
 		}
-
+		// try to sort the results list here
 		ObservableList<IssueResult> obvRes = FXCollections.observableList(results);
 
 		issueList = new ListView<IssueResult>();
@@ -212,7 +233,16 @@ public class AddComic {
                             } catch (JSONException ex) {
                                 Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
                             }
-				addButton.setVisible(true);
+                            
+                Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
+                if(addList.contains(iSel)){
+                	deleteButton.setVisible(true);
+                	addButton.setVisible(false);
+                }
+                else if(!addList.contains(iSel)){
+                	deleteButton.setVisible(false);
+                	addButton.setVisible(true);
+                }
 			}
 		});
 		scPane.setContent(issueList);
