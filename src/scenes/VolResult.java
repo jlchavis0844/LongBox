@@ -12,7 +12,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import model.Volume;
-import org.json.JSONException;
 import requests.CVImage;
 
 public class VolResult extends HBox {
@@ -21,7 +20,7 @@ public class VolResult extends HBox {
 	Volume vol;
 	
 	
-	public VolResult(Volume vol) throws JSONException {
+	public VolResult(Volume vol) {
 		super();
 		this.vol = vol;
 		
@@ -29,7 +28,7 @@ public class VolResult extends HBox {
 		String info = vol.getName() + "\n" + vol.getPublisher() + "\n" + vol.getStartYear() +
 				"\n" + vol.getCountofIssue() + " issues";
 		text.setText(info);
-		JSONObject jo = vol.getVolume();
+		JSONObject jo = vol.getJSONObject();
 		jo = jo.getJSONObject("image");
 		String url = jo.getString("thumb_url");
 		
@@ -46,7 +45,7 @@ public class VolResult extends HBox {
 		getChildren().addAll(bp);
 	}
 	
-	public String getVolID() throws JSONException{
+	public String getVolID(){
 		return vol.getID();
 	}
 

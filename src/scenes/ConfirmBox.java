@@ -39,6 +39,8 @@ public class ConfirmBox {
 		noBtn.setOnAction(e -> window.close());
 				
 		Scene scene = new Scene(layout, 200, 100);
+		String style= ConfirmBox.class.getResource("../application.css").toExternalForm();
+		scene.getStylesheets().add(style);
 		window.setScene(scene);
 		window.showAndWait();
 		

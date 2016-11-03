@@ -18,12 +18,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import model.Issue;
-import org.json.JSONException;
 import requests.CVImage;
 
 public class DetailView extends BorderPane{
 
-	public DetailView(Issue issue) throws JSONException {
+	public DetailView(Issue issue) {
 		super();
 		
 		if(!issue.isFull())
@@ -71,15 +70,21 @@ public class DetailView extends BorderPane{
 		grid.add(new TextField(issue.getPerson("art")), 1, 6);
 		
 		WebView descBox = new WebView();
+		descBox.setMinHeight(50);
+		descBox.setPrefHeight(100);
 		String desc = issue.getDescription();
 		Document doc = Jsoup.parse(desc);
 		doc.select("table").remove();
+		doc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" +
+					getClass().getResource("../application.css").toExternalForm() + "\" />");
+		doc.select("h4").remove();
 		desc = doc.toString();
+		//descBox.getEngine().setUserStyleSheetLocation(getClass().getResource("../application.css").toExternalForm());
 		descBox.getEngine().loadContent(desc);
 		descBox.setMaxHeight(300);
 		//descBox.setFontScale(0.75);
 		
-		BufferedImage bi = issue.getMediumImg();
+		BufferedImage bi = issue.getLocalImg("medium");
 		Image image = SwingFXUtils.toFXImage(bi, null);
 		ImageView imageView = new ImageView(image);
 		

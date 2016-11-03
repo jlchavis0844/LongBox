@@ -1,0 +1,192 @@
+/*
+ * To use in same package use:
+ * scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+ * 
+ * To use from a different package use:
+ * scene.getStylesheets().add(getClass().getResource("../application/application.css").toExternalForm());
+ */
+
+
+.root{
+	/* Main background color */
+    -fx-background-color: #2B2B2B;
+    /* Text color */
+    -fx-text-fill:#BBBBBB;
+
+
+    /* Used for the inside of text boxes, password boxes, lists, trees, and tables.*/  
+    -fx-control-inner-background: #3C3F41;
+
+    /* The color to use in ListView/TreeView/TableView to indicate hover. */
+    -fx-cell-hover-color: #0D293E;
+
+    /* The color of the font */
+    -fx-text-inner-color: #DDDDDD;
+    
+    /* The opacity level to use for the "disabled" class.*/
+    -fx-disabled-opacity: 0.5;
+}
+
+
+/**************************
+           Label
+Default label look
+***************************/
+.label{
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+}
+
+
+
+/**************************
+           Button
+Default button theme
+***************************/
+
+.button{
+    -fx-background-color: linear-gradient(#505356, #393B3D);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+.button:hover{
+    -fx-background-color: linear-gradient(#53585A, #424749);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+.button:armed {
+    -fx-background-color: linear-gradient(#4A6BA8, #415270);
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-font-size: 12px;
+    -fx-alignment: center-left;
+    -fx-font-family: "Arial";
+    -fx-background-radius: 5;
+}
+
+.button:disabled {
+    -fx-opacity: -fx-disabled-opacity;
+}
+
+
+
+
+/**************************
+           Hyperlink
+Links to Comic Vine
+***************************/
+
+.hyperlink {
+    -fx-cursor: hand;
+    -fx-content-display: LEFT;
+    -fx-text-fill: #009999;
+    -fx-font-family: "Arial";
+}
+
+.hyperlink:hover {
+    -fx-underline: true;
+}
+
+
+
+
+/********************************************
+          Text Field
+Searching fields
+*********************************************/
+.text-field{
+    -fx-background-color: #49454A;
+    -fx-text-fill:  -fx-text-inner-color;
+    -fx-prompt-text-fill: #999999;
+    -fx-background-radius: 100;
+}
+
+
+/********************************************
+          ScrollPane
+Theme for the scroll pane
+*********************************************/
+.scroll-pane {
+	-fx-background-color: -fx-control-inner-background;
+	-fx-border-color: #6E6E6E;
+	
+}
+
+.scroll-pane > .corner {
+	-fx-background-color: -fx-control-inner-background;
+}
+
+
+
+/********************************************
+          Scroll Bar
+Theme of all scroll bars
+*********************************************/
+.scroll-bar{
+	
+}
+
+.scroll-bar:horizontal {
+    -fx-background-color: -fx-control-inner-background;
+}
+
+.scroll-bar:vertical {
+    -fx-background-color: -fx-control-inner-background;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #5C5C5C;
+    -fx-background-radius: 0.5em; /* makes sure this remains circular */
+}
+
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #5C5C5C;
+    -fx-background-radius: 0.5em; /* makes sure this remains circular */
+}
+
+.scroll-bar > .thumb:hover {
+	-fx-background-color: #6E6E6E;
+}
+
+
+
+
+/********************************************
+          HTML
+Theme of all scroll bars
+*********************************************/
+
+body {
+    background-color: #3C3F41;
+    font-family: Arial, Helvetica, san-serif;
+	color: #DDDDDD;
+}
+
+
+/********************************************
+           Tree View | Tree Cell
+The collection LIST (not tree)
+*********************************************/
+.tree-view {
+    -fx-background-color: -fx-control-inner-background;
+}
+
+.tree-cell {
+    -fx-background-color: -fx-control-inner-background;
+    -fx-text-fill: -fx-text-inner-color;
+}
+
+.tree-cell:filled:hover {
+    -fx-background-color: -fx-cell-hover-color;
+    -fx-text-fill: -fx-text-inner-color;
+}
+

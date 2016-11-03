@@ -1,16 +1,21 @@
 package requests;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import model.Issue;
 import model.Volume;
-import org.json.JSONException;
 
 /**
  * A class to simplify the sending of API requests to the ComicVine API.<br>
@@ -20,32 +25,28 @@ import org.json.JSONException;
  *
  */
 public class CVrequest {
-	private static String API_KEY = "ebae3bcc02357fb42c9408727710be74f12576ce";
+	private static String api_key = "ebae3bcc02357fb42c9408727710be74f12576ce";
 	private static String baseURL = "http://api.comicvine.com";
 	private static JsonNode response = null;
-	private static String LIMIT = "100";
-        private static String FORMAT = "json";
-        private static String CLIENT = "cvscrapper";
-        private static String ACCEPT = "application/json";
-        private static String BASE_URL = "/search";
+	private static String limit = "100";
 
 	/**
 	 * Default search, limit is 10, no given resource
-	 * @param queryString = the term to search for 
+	 * @param qString = the term to search for 
 	 * @return JSONObject of the response body, values are:<br>
 	 * image JSON array<br>Aliases<br>Gender<br>site_detail_url<br>deck<br>origin array<br>
 	 * resource_type<br>birth<br>description<br>real_name<br>api_detail_url<br>date_added<br>name<br>
 	 * "publisher" array<br>id<br>first_appeared_in_issue<br>count_of_issue_appearances<br>date_last_updated<br>
 	 */
-	public static JSONObject search(String queryString){
+	public static JSONObject search(String qString){
 		try {
-			response = Unirest.get(baseURL + BASE_URL)
-					.header("Accept", ACCEPT)
-					.queryString("api_key", API_KEY)
-					.queryString("client",CLIENT)
-					.queryString("query", queryString)
-					.queryString("format", FORMAT)
-					.queryString("limit", LIMIT)
+			response = Unirest.get(baseURL + "/search")
+					.header("Accept", "application/json")
+					.queryString("api_key", api_key)
+					.queryString("client","cvscrapper")
+					.queryString("query", qString)
+					.queryString("format", "json")
+					.queryString("limit", limit)
 					.asJson().getBody();
 			return response.getObject();
 		} catch (UnirestException e) {
@@ -57,15 +58,15 @@ public class CVrequest {
 
 	/**
 	 * This search gives even more search options including query. resource, limit, and field_list 
-	 * @param queryString - String to search for
-	 * @param resourceString - String of the resource being searched
+	 * @param qString - String to search for
+	 * @param rString - String of the resource being searched
 	 * @param limit - int of how many results to return, max of 100
 	 * @param fieldList - Array of Strings of field names to return in addition to header:
 	 * 	character<br>concept<br>origin<br>object<br>location<br>issue<br>story_arc<br>volume<br>publisher<br>
 	 * 	person<br>team<br>video
 	 * @return JsonNode of the response body, depends on resource
 	 */
-	public static JSONObject search(String queryString, String resourceString, int lim, String[] fieldList){
+	public static JSONObject search(String qString, String rString, int lim, String[] fieldList){
 		String fList = "";
 
 		for(int i = 0; i< fieldList.length; i++){
@@ -79,10 +80,10 @@ public class CVrequest {
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
-					.queryString("query", queryString)
-					.queryString("resources", resourceString)
+					.queryString("query", qString)
+					.queryString("resources", rString)
 					.queryString("field_list",fList)
 					.queryString("format", "json")
 					.queryString("limit", String.valueOf(lim))
@@ -106,7 +107,7 @@ public class CVrequest {
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("query", qString)
 					.queryString("resources", rString)
@@ -128,27 +129,34 @@ public class CVrequest {
 	 * name<br>start_year<br>publisher array<br>id<br>count_of_issues<br>image array
 	 * 
 	 */
-	public static ArrayList<Volume> searchVolume(String qString) throws JSONException{
+	public static ArrayList<Volume> searchVolume(String qString){
 
 		ArrayList<Volume> vols = new ArrayList<>();
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("query", qString)
 					.queryString("resources", "volume")
 					.queryString("field_list", "name,start_year,publisher,id,count_of_issues,image")
 					.queryString("format", "json")
-					.queryString("limit", "20")
+					.queryString("limit", "100")
 					.asJson().getBody();
-			JSONArray ja = response.getObject().getJSONArray("results");
 
-			int JAsize = ja.length();
-			for(int i = 0; i< JAsize; i++){
-				vols.add(new Volume(ja.getJSONObject(i)));
+			int resNum = response.getObject().getInt("number_of_total_results");
+			System.out.println("found " + resNum);
+			JSONObject jo = response.getObject();
+			JSONArray ja = jo.getJSONArray("results");
+			JSONObject tempJO;
+			String pubName = "";
+			
+			for(int i = 0; i < 50 && i < resNum; i++){				
+				tempJO = ja.getJSONObject(i);
+				vols.add(new Volume(tempJO));
 			}
-
+			
+			System.out.println("returning " + vols.size());
 			return vols;
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
@@ -160,18 +168,18 @@ public class CVrequest {
 	/**
 	 * Super volume search, returns ArrayList of the volumes that published by publisher param
 	 * @param qString - what volume to search for
-	 * @param inputPublisher
+	 * @param publisher
 	 * @return ArrayList<Volume> of the search results,fields:
 	 * name<br>start_year<br>publisher array<br>id<br>count_of_issues<br>image array
 	 * 
 	 */
-	public static ArrayList<Volume> searchVolume(String qString, String inputPublisher) throws JSONException{
+	public static ArrayList<Volume> searchVolume(String qString, String publisher){
 
-		ArrayList<Volume> volumeArrayList = new ArrayList<>();
+		ArrayList<Volume> vols = new ArrayList<>();
 		try {
 			response = Unirest.get(baseURL + "/search")
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("query", qString)
 					.queryString("resources", "volume")
@@ -180,17 +188,18 @@ public class CVrequest {
 					.queryString("limit", "100")
 					.asJson().getBody();
 
-			int responseNumber = response.getObject().getInt("number_of_total_results");
-			System.out.println("found " + responseNumber);
-			int pages = (responseNumber/100)+1;		
-			JSONObject jsonobject = response.getObject();
-			JSONArray allResultsJSONArray[] = new JSONArray[pages]; 
-			allResultsJSONArray[0] = jsonobject.getJSONArray("results");
+			int resNum = response.getObject().getInt("number_of_total_results");
+			System.out.println("found " + resNum);
+			int pages = (resNum/100)+1;		
+			JSONObject jo = response.getObject();
+			Vector<JSONArray> allResults = new Vector<>(); 
+			allResults.addElement(jo.getJSONArray("results"));
 
+			AtomicInteger gets = new AtomicInteger(1);
 			for(int i = 1; i < pages; i++){
-				allResultsJSONArray[i] = Unirest.get(baseURL + "/search")
+				Future <HttpResponse<JsonNode>> future1 = Unirest.get(baseURL + "/search")
 						.header("Accept", "application/json")
-						.queryString("api_key", API_KEY)
+						.queryString("api_key", api_key)
 						.queryString("client","cvscrapper")
 						.queryString("query", qString)
 						.queryString("resources", "volume")
@@ -198,29 +207,48 @@ public class CVrequest {
 						.queryString("offset", String.valueOf(100*i))
 						.queryString("format", "json")
 						.queryString("limit", "100")
-						.asJson().getBody().getObject().getJSONArray("results");
+						.asJsonAsync(new Callback<JsonNode>(){
+							public void completed(HttpResponse<JsonNode> response) {
+								System.out.println("Thread " + Thread.currentThread().getId() + " writing");
+								allResults.addElement(response.getBody().getObject().getJSONArray("results"));
+								System.out.println(gets.incrementAndGet());
+							}
+
+							@Override
+							public void failed(UnirestException e) {
+								// TODO Auto-generated method stub
+								e.printStackTrace();
+							}
+
+							@Override
+							public void cancelled() {
+								// TODO Auto-generated method stub
+								System.out.println("cancelling request");
+							}
+						});
 			}
+			
+			//wait until they are all fetched
+			System.out.println("Thread " + Thread.currentThread().getId() + " waitings");
+			
+			while(gets.get() < pages){}
 
-			//Volume temp = null;
-			JSONObject tempJSONObject;
-			String publisherName = "";
-
-			for(JSONArray elementJSONArray: allResultsJSONArray){				
-				for(int k = 0; k < elementJSONArray.length() && volumeArrayList.size() < 30; k++){
-					tempJSONObject = elementJSONArray.getJSONObject(k);
-					if (!tempJSONObject.isNull("publisher") && !tempJSONObject.isNull("name")){
-						publisherName = tempJSONObject.getJSONObject("publisher").get("name").toString();
-						if(publisherName.contains(inputPublisher)){
-							volumeArrayList.add(new Volume(tempJSONObject));
+			JSONObject tempJO;
+			String pubName = "";
+			for(JSONArray j: allResults){				
+				for(int k = 0; k < j.length() && vols.size() < 30; k++){
+					tempJO = j.getJSONObject(k);
+					if (!tempJO.isNull("publisher") && !tempJO.isNull("name")){
+						pubName = tempJO.getJSONObject("publisher").get("name").toString();
+						if(pubName.contains(publisher)){
+							vols.add(new Volume(tempJO));
 						}
 					}
 				}
 			}						
-			System.out.println(volumeArrayList.size() + " results");
-			if(volumeArrayList.size() > 30){
-			}
-			System.out.println("returning " + volumeArrayList.size());
-			return volumeArrayList;
+
+			System.out.println("returning " + vols.size());
+			return vols;
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -229,17 +257,17 @@ public class CVrequest {
 	}
 
 	/**
-	 * Returns infomation for the given Volume ID
+	 * Returns information for the given Volume ID
 	 * @param volID String of the volume ID
 	 * @return JSONObject with the following fields:<br>
 	 * name<br>start_year<br>publisher<br>image<br>count_of_issues<br>id
 	 */
-	public static JSONObject getVolumeInfo(String volID) throws JSONException{
+	public static JSONObject getVolumeInfo(String volID){
 		try {
 			String query = "http://comicvine.gamespot.com/api/volume/4050-" + volID;
 			response = Unirest.get(query)
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("field_list", "name,start_year,publisher,image,count_of_issues,id")
 					.queryString("format", "json")
@@ -259,13 +287,13 @@ public class CVrequest {
 	 * @return JSONArray sorted by cover_date (oldest first) with the following fields:<br>
 	 * image json object<br>issue_number<br>id<br>name<br>cover_date
 	 */
-	public static ArrayList<Issue> getVolumeIDs(String volID) throws JSONException{
+	public static ArrayList<Issue> getVolumeIDs(String volID){
 		ArrayList<Issue> list = new ArrayList<>();;
 
 		try {
 			JsonNode jn = Unirest.get(baseURL + "/issues")
 					.header("Accept", "application/json")
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("client","cvscrapper")
 					.queryString("format", "json")
 					.queryString("limit", "100")
@@ -284,7 +312,7 @@ public class CVrequest {
 			for(int i = 1; i < pages; i++){
 				allResults[i] = Unirest.get(baseURL + "/issues")
 						.header("Accept", "application/json")
-						.queryString("api_key", API_KEY)
+						.queryString("api_key", api_key)
 						.queryString("client","cvscrapper")
 						.queryString("format", "json")
 						.queryString("limit","100")
@@ -322,11 +350,11 @@ public class CVrequest {
 	 * team_credits<br>name<br>story_arc_credits<br>character_died_in<br>object_credits<br>has_staff_review<br>
 	 * team_disbanded_in
 	 */
-	public static JSONObject getIssue(String issId) throws JSONException{
+	public static JSONObject getIssue(String issId){
 		try {
 			String query = "http://comicvine.gamespot.com/api/issue/4000-" + issId;
 			response = Unirest.get(query)
-					.queryString("api_key", API_KEY)
+					.queryString("api_key", api_key)
 					.queryString("format", "json")
 					.asJson().getBody();
 			return response.getObject().getJSONObject("results");

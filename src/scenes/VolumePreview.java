@@ -10,74 +10,86 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import model.Issue;
 import model.Volume;
-import org.json.JSONException;
 
-public class VolumePreview extends HBox {
+public class VolumePreview extends HBox{
+	private Volume vol;
+	private ImageView thumb;
+	private Label infoLbl;
 
-    private Volume volume;
-    private ImageView thumb;
-    private Label infoLbl;
+	/**
+	 * Makes a preview of a volume, to load the image, us setImage()
+	 * @param rhVol
+	 * @param issues
+	 */
+	public VolumePreview(Volume rhVol, ArrayList<Issue> issues) {
+		super();
 
-    public VolumePreview(Volume inputVolume, ArrayList<Issue> issues) throws JSONException {
-        super();
+		vol = rhVol;
+		long start = System.currentTimeMillis();
+		//		BufferedImage bi = vol.getImage("thumb");
+		//		Image image = SwingFXUtils.toFXImage(bi, null);
+		//		thumb = new ImageView(image);
+		thumb = new ImageView();
+		//System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
+		thumb.setFitHeight(50);
+		thumb.setFitWidth(33);
 
-        volume = inputVolume;
-        long start = System.currentTimeMillis();
-        BufferedImage bufferimage = volume.getImage("thumb");
-        if (bufferimage != null) {
-            Image image = SwingFXUtils.toFXImage(bufferimage, null);
-            thumb = new ImageView(image);
-            System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
-            thumb.setFitHeight(50);
-            thumb.setFitWidth(33);
+		int counter = 0;
+		for(Issue i : issues){
+			if(i.getVolumeID().equals(vol.getID())){
+				counter++;
+			}
+		}
 
-            int counter = 0;
-            for (Issue i : issues) {
-                if (i.getVolumeID().equals(volume.getID())) {
-                    counter++;
-                }
-            }
+		String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
+				"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
 
-            String info = volume.getName() + "\n" + volume.getPublisher() + "     " + volume.getStartYear()
-                    + "\n" + counter + " out of " + volume.getCountofIssue() + " in collection";
+		infoLbl = new Label(info);
+		getChildren().addAll(thumb, infoLbl);
+	}
 
-            infoLbl = new Label(info);
-            getChildren().addAll(thumb, infoLbl);
-        }
+	public String getVolName(){
+		return vol.getName();
+	}
 
-    }
+	public void update(ArrayList<Issue> issues){
+		int counter = 0;
+		for(Issue i : issues){
+			if(i.getVolumeID().equals(vol.getID())){
+				counter++;
+			}
 
-    public String getVolName() {
-        return volume.getName();
-    }
+			String info = vol.getName() + "\n" + vol.getPublisher()  + "     " + vol.getStartYear() +
+					"\n" + counter + " out of " + vol.getCountofIssue() + " in collection";
+			infoLbl.setText(info);
+			getChildren().clear();
+			getChildren().addAll(thumb, infoLbl);
+		}
 
-    public void update(ArrayList<Issue> issues) throws JSONException {
-        int counter = 0;
-        for (Issue i : issues) {
-            if (i.getVolumeID().equals(volume.getID())) {
-                counter++;
-            }
+	}
 
-            String info = volume.getName() + "\n" + volume.getPublisher() + "     " + volume.getStartYear()
-                    + "\n" + counter + " out of " + volume.getCountofIssue() + " in collection";
-            infoLbl.setText(info);
-            getChildren().clear();
-            getChildren().addAll(thumb, infoLbl);
-        }
+	/**
+	 * @return the vol
+	 */
+	public Volume getVolume() {
+		return vol;
+	}
 
-    }
+	/**
+	 * @param vol the vol to set
+	 */
+	public void setVolume(Volume vol) {
+		this.vol = vol;
+	}
 
-    /**
-     * @return the vol
-     */
-    public Volume getVolume() {
-        return volume;
-    }
-
-    /**
-     * @param vol the vol to set
-     */
-    public void setVolume(Volume vol) {
-        this.volume = vol;
-    }
+	/**
+	 * loads the image
+	 */
+	public void setImage(){
+		if(thumb.getImage() == null){
+			BufferedImage bi = vol.getImage("thumb");
+			Image image = SwingFXUtils.toFXImage(bi, null);
+			thumb.setImage(image);
+		}
+	}
 }

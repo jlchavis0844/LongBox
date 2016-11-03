@@ -1,5 +1,7 @@
 package scenes;
 
+import org.junit.experimental.theories.Theories;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +27,8 @@ public class AlertBox {
 		layout.setAlignment(Pos.CENTER);
 		
 		Scene scene = new Scene(layout);
+		String style= AlertBox.class.getResource("../application.css").toExternalForm();
+		scene.getStylesheets().add(style);
 		window.setScene(scene);
 		window.showAndWait();
 	}
