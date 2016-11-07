@@ -1,9 +1,13 @@
 package scenes;
 
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
@@ -11,18 +15,26 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import localDB.LocalDB;
 import model.Issue;
+
+
+import org.json.JSONException;
+
+
+import application.Main;
 import requests.CVImage;
 
 public class DetailView extends BorderPane{
-
-	public DetailView(Issue issue) {
+	private Button editButton;
+	public DetailView(Issue issue) throws JSONException {
 		super();
 		
 		if(!issue.isFull())
@@ -43,7 +55,8 @@ public class DetailView extends BorderPane{
 		TextField volName = new TextField(issue.getVolumeName());
 		TextField writer = new TextField(issue.getPerson("writer"));
 		//center.getChildren().addAll(volName,issueNum,name,cDate, writer);
-
+		//name.getSelectedText();
+		
 		this.setPadding(new Insets(10));
 		
 		GridPane grid = new GridPane();
@@ -91,6 +104,16 @@ public class DetailView extends BorderPane{
 		//setCenter(center);
 		setRight(imageView);	
 		
+		editButton = new Button("Edit Issue");
+		editButton.setVisible(true);
+		editButton.setOnAction(e -> {
+			LocalDB.update(issue.getID(), "name", name.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "issue_number", issueNum.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "cover_date", cDate.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "volume", volName.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "person_credits", writer.getSelectedText().toString(), 0);
+		});
+		grid.add(editButton, 0, 7);
 	}
 
 }
