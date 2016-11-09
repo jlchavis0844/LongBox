@@ -136,8 +136,8 @@ public class TestLocalDB {
 //		testConnection();
 //		testVolumeSearchQueries();
 //		testIssueSearchQueries();
-//		testIssuesSorting();
-
+		
+		testIssuesSorting();
 		testVolumeSort();
 	}
 	
@@ -207,8 +207,6 @@ public class TestLocalDB {
 		}
 	}
 
-
-
 	private static void testVolumeSort() {
 		ArrayList<Volume> list = LocalDB.getAllVolumes();
 		// sortIssuesByAuthors-------------------------------------------
@@ -217,65 +215,65 @@ public class TestLocalDB {
 		// sortVolumesByName
 		LocalDB.sortVolumesByName(list, true);
 		for (Volume element : list) {
-			System.out.println(element.getName());
+			System.out.println("volume name : " + element.getName());
 		}
 
 		System.out.println("------sortIssuesByAuthors false--------");
 		LocalDB.sortVolumesByName(list, false);
 		for (Volume element : list) {
-			System.out.println(element.getName());
+			System.out.println("volume name : " + element.getName());
 		}
 
 		// sortVolumesByID
 		System.out.println("------sortVolumesByID true--------");
 		LocalDB.sortVolumesByID(list, true);
 		for (Volume element : list) {
-			System.out.println(element.getID() + ", " + element.getName());
+			System.out.println("id : " + element.getID() + ", " + element.getName());
 		}
 
 		System.out.println("------sortVolumesByID false--------");
 		LocalDB.sortVolumesByID(list, false);
 		for (Volume element : list) {
-			System.out.println(element.getID() + ", " + element.getName());
+			System.out.println("id : " + element.getID() + ", " + element.getName());
 		}
 
 		// sortVolumesByStartYear
 		System.out.println("------sortVolumesByStartYear true--------");
 		LocalDB.sortVolumesByStartYear(list, true);
 		for (Volume element : list) {
-			System.out.println(element.getStartYear() + ", " + element.getName());
+			System.out.println("start year : " + element.getStartYear() + ", issue title : " + element.getName());
 		}
 
 		System.out.println("------sortVolumesByStartYear false--------");
 		LocalDB.sortVolumesByStartYear(list, false);
 		for (Volume element : list) {
-			System.out.println(element.getStartYear() + ", " + element.getName());
+			System.out.println("start year : " + element.getStartYear() + ", issue title : " + element.getName());
 		}
 
 		// sortVolumesByStartCountOfIssues
 		System.out.println("------sortVolumesByStartCountOfIssues true--------");
 		LocalDB.sortVolumesByStartCountOfIssues(list, true);
 		for (Volume element : list) {
-			System.out.println("count_of_issues : " + element.getCountofIssue() + ", " + element.getName());
+			System.out.println("count_of_issues : " + element.getCountofIssue() + ", issue title : " + element.getName());
 		}
 
 		System.out.println("------sortVolumesByStartCountOfIssues false--------");
 		LocalDB.sortVolumesByStartCountOfIssues(list, false);
 		for (Volume element : list) {
-			System.out.println("count_of_issues : " + element.getCountofIssue() + ", " + element.getName());
+			System.out.println("count_of_issues : " + element.getCountofIssue() + ", issue title : " + element.getName());
 		}
 
 		// sortVolumesByPublisher
 		System.out.println("------sortVolumesByPublisher true--------");
 		LocalDB.sortVolumesByPublisher(list, true);
 		for (Volume element : list) {
-			System.out.println("publisher : " + element.getPublisher() + ", " + element.getName());
+			System.out.println("publisher : " + element.getPublisher() + ", issue title : " + element.getName());
 		}
 
 		System.out.println("------sortVolumesByPublisher false--------");
 		LocalDB.sortVolumesByPublisher(list, false);
 		for (Volume element : list) {
-			System.out.println("publisher : " + element.getPublisher() + ", " + element.getName());
+			System.out.println("publisher : " + element.getPublisher() + ", issue title : " + element.getName());
 		}
 
 	}
