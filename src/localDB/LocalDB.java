@@ -613,7 +613,7 @@ public class LocalDB {
 	 * @return ArrayList<Issue>
 	 * @throws JSONException
 	 */
-	public static void sortIssuesByAuthors(ArrayList<Issue> input, boolean order) throws JSONException {
+	public static void sortIssuesByName(ArrayList<Issue> input, boolean order) throws JSONException {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
@@ -626,7 +626,7 @@ public class LocalDB {
 
 	}
 	
-	public static void sortIssuesByVolume(ArrayList<Issue> input,boolean order) throws JSONException {
+	public static void sortIssuesByVolumeName(ArrayList<Issue> input,boolean order) throws JSONException {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
@@ -675,6 +675,84 @@ public class LocalDB {
 		Collections.sort(input, comparatorIssue);
 
 	}
+	
+	public static void sortVolumesByName(ArrayList<Volume> input, boolean order) throws JSONException {
+
+		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
+			public int compare(Volume e1, Volume e2) {
+				
+				return e1.getName().toLowerCase().compareTo(e2.getName().toLowerCase()) * ((order)?1:-1);
+			}
+		};
+
+		Collections.sort(input, comparatorIssue);
+
+	}
+	
+	public static void sortVolumesByID(ArrayList<Volume> input, boolean order) throws JSONException {
+
+		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
+			public int compare(Volume e1, Volume e2) {
+				
+				return e1.getID().toLowerCase().compareTo(e2.getID().toLowerCase()) * ((order)?1:-1);
+			}
+		};
+
+		Collections.sort(input, comparatorIssue);
+
+	}
+	
+	public static void sortVolumesByStartYear(ArrayList<Volume> input, boolean order) throws JSONException {
+
+		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
+			public int compare(Volume e1, Volume e2) {
+				
+				return e1.getStartYear().toLowerCase().compareTo(e2.getStartYear().toLowerCase()) * ((order)?1:-1);
+			}
+		};
+
+		Collections.sort(input, comparatorIssue);
+
+	}
+	
+	public static void sortVolumesByPublisher(ArrayList<Volume> input, boolean order) throws JSONException {
+
+		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
+			public int compare(Volume e1, Volume e2) {
+				
+				return e1.getPublisher().toLowerCase().compareTo(e2.getPublisher().toLowerCase()) * ((order)?1:-1);
+			}
+		};
+
+		Collections.sort(input, comparatorIssue);
+
+	}
+	
+	public static void sortVolumesByStartCountOfIssues(ArrayList<Volume> input, boolean order) throws JSONException {
+
+		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
+			public int compare(Volume e1, Volume e2) {
+				
+				int result;
+				
+				if ( Integer.valueOf(e1.getCountofIssue()) > Integer.valueOf(e2.getCountofIssue())){
+					result = 1;
+				}
+				else if ( Integer.valueOf(e1.getCountofIssue()) < Integer.valueOf(e2.getCountofIssue())){
+					result = -1;
+				}
+				else{
+					result = 0;
+				}
+				
+				return result * ((order)?1:-1) ;
+							
+			}
+		};
+
+		Collections.sort(input, comparatorIssue);
+
+	}
 
 	public static ArrayList<Volume> getAllVolumes() throws JSONException {
 		ArrayList<Volume> iList = new ArrayList<Volume>();
@@ -696,7 +774,7 @@ public class LocalDB {
 				value = rs.getString(1);
 				tObj = new JSONObject(value);
 				vol = new Volume(tObj);
-				System.out.println("fetching " + vol.getName());
+				System.out.println("*fetching " + vol.getName());
 				iList.add(vol);
 			}
 
