@@ -26,11 +26,11 @@ public class VolumePreview extends HBox{
 
 		vol = rhVol;
 		long start = System.currentTimeMillis();
-		//		BufferedImage bi = vol.getImage("thumb");
-		//		Image image = SwingFXUtils.toFXImage(bi, null);
-		//		thumb = new ImageView(image);
+				BufferedImage bi = vol.getImage("thumb");
+				Image image = SwingFXUtils.toFXImage(bi, null);
+				thumb = new ImageView(image);
 		thumb = new ImageView();
-		//System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
+		System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
 		thumb.setFitHeight(50);
 		thumb.setFitWidth(33);
 

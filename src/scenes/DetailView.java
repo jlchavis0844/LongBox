@@ -54,6 +54,7 @@ public class DetailView extends BorderPane{
 		TextField cDate = new TextField(issue.getCoverDate());
 		TextField volName = new TextField(issue.getVolumeName());
 		TextField writer = new TextField(issue.getPerson("writer"));
+		writer.setEditable(false);
 		//center.getChildren().addAll(volName,issueNum,name,cDate, writer);
 		//name.getSelectedText();
 		
@@ -111,7 +112,6 @@ public class DetailView extends BorderPane{
 			LocalDB.update(issue.getID(), "issue_number", issueNum.getSelectedText().toString(), 0);
 			LocalDB.update(issue.getID(), "cover_date", cDate.getSelectedText().toString(), 0);
 			LocalDB.update(issue.getID(), "volume", volName.getSelectedText().toString(), 0);
-			LocalDB.update(issue.getID(), "person_credits", writer.getSelectedText().toString(), 0);
 		});
 		grid.add(editButton, 0, 7);
 	}

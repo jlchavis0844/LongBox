@@ -113,7 +113,7 @@ public class AddComic {
 		deleteButton.setVisible(false);
 		
 		addButton.setOnAction(e -> {
-			Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
+			Issue iSel = issueList.getSelectionModel().getSelectedItem().getIssue();
 			if(iSel != null){
                             try {
                                 System.out.println("Adding "+ iSel.getVolumeName() + " #" + iSel.getIssueNum());
@@ -152,7 +152,7 @@ public class AddComic {
 		// loop through the addList and add all issue to tempList
 		// except the user selected issue. 
 		deleteButton.setOnAction(e -> {		
-			Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
+			Issue iSel = issueList.getSelectionModel().getSelectedItem().getIssue();
 			ArrayList<Issue> tempList = new ArrayList<Issue>();
 			for(int i = 0; i < addList.size(); i++){
 				if(iSel.equals(addList.get(i))){
@@ -229,12 +229,12 @@ public class AddComic {
 			public void changed(ObservableValue<? extends IssueResult> observable, IssueResult oldValue,
 					IssueResult newValue) {
                             try {
-                                layout.setCenter(new DetailView(newValue.getmIssue()));
+                                layout.setCenter(new DetailView(newValue.getIssue()));
                             } catch (JSONException ex) {
                                 Logger.getLogger(AddComic.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             
-                Issue iSel = issueList.getSelectionModel().getSelectedItem().getmIssue();
+                Issue iSel = issueList.getSelectionModel().getSelectedItem().getIssue();
                 if(addList.contains(iSel)){
                 	deleteButton.setVisible(true);
                 	addButton.setVisible(false);
