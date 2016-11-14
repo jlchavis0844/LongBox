@@ -167,49 +167,57 @@ public class LocalDB {
 			e.printStackTrace();
 		}
 		return true;
-		
+
 	}
 
 	public static boolean deleteVolumeByID(String inputID) {
 
-		try {
-			mConnection = DriverManager.getConnection(mURL);
-			mStatement = mConnection.createStatement();
+		if (inputID.chars().allMatch(Character::isDigit)) {
 
-			String sql = "DELETE FROM volume WHERE id = " +  "'" + inputID + "'";
+			try {
+				mConnection = DriverManager.getConnection(mURL);
+				mStatement = mConnection.createStatement();
 
-			PreparedStatement pre = mConnection.prepareStatement(sql);
-			
-			pre.executeUpdate(sql);
+				String sql = "DELETE FROM volume WHERE id = " + "'" + inputID + "'";
 
-			
-			return true;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				PreparedStatement pre = mConnection.prepareStatement(sql);
+
+				pre.executeUpdate(sql);
+
+				return true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 
 		return false;
 	}
 
 	public static boolean deleteIssueByID(String inputID) {
-		try {
-			mConnection = DriverManager.getConnection(mURL);
-			mStatement = mConnection.createStatement();
 
-			String sql = "DELETE FROM issue WHERE id = " +  inputID ;
+		if (inputID.chars().allMatch(Character::isDigit)) {
 
-			PreparedStatement pre = mConnection.prepareStatement(sql);
-			
-			pre.executeUpdate(sql);
-			
-			return true;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+				mConnection = DriverManager.getConnection(mURL);
+				mStatement = mConnection.createStatement();
+
+				String sql = "DELETE FROM issue WHERE id = " + inputID;
+
+				PreparedStatement pre = mConnection.prepareStatement(sql);
+
+				pre.executeUpdate(sql);
+
+				return true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
-
 		return false;
+
 	}
 
 	public static boolean deleteVolumeByName(String inputName) {
@@ -217,12 +225,12 @@ public class LocalDB {
 			mConnection = DriverManager.getConnection(mURL);
 			mStatement = mConnection.createStatement();
 
-			String sql = "DELETE FROM volume WHERE name = " +  "'" + inputName + "'";
+			String sql = "DELETE FROM volume WHERE name = " + "'" + inputName + "'";
 
 			PreparedStatement pre = mConnection.prepareStatement(sql);
 
 			pre.executeUpdate(sql);
-			
+
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -237,12 +245,12 @@ public class LocalDB {
 			mConnection = DriverManager.getConnection(mURL);
 			mStatement = mConnection.createStatement();
 
-			String sql = "DELETE FROM issue WHERE name = " +  "'" + inputName + "'";
+			String sql = "DELETE FROM issue WHERE name = " + "'" + inputName + "'";
 
 			PreparedStatement pre = mConnection.prepareStatement(sql);
 
 			pre.executeUpdate(sql);
-			
+
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
