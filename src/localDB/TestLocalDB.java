@@ -138,7 +138,7 @@ public class TestLocalDB {
 //		testIssueSearchQueries();
 		
 		testIssuesSorting();
-		testVolumeSort();
+		//testVolumeSort();
 	}
 	
 
@@ -147,18 +147,18 @@ public class TestLocalDB {
 		ArrayList<Issue> list = LocalDB.getAllIssues();
 
 		// sortIssuesByAuthors-------------------------------------------
-		System.out.println("------sortIssuesByAuthors true--------");
+		System.out.println("------sortIssuesByName true--------");
 
 		LocalDB.sortIssuesByName(list, true);
 		for (Issue element : list) {
-			System.out.println("issue name : " + element.getName());
+			System.out.println("issue id : " + element.getID()  + ", " + "issue name : " + element.getName());
 		}
 
-		System.out.println("-------sortIssuesByAuthors false-------");
+		System.out.println("-------sortIssuesByName false-------");
 
 		LocalDB.sortIssuesByName(list, false);
 		for (Issue element : list) {
-			System.out.println("issue name : " + element.getName());
+			System.out.println("issue id : " + element.getID()  + ", " + "issue name : " + element.getName());
 		}
 
 		// sortIssuesByVolumeName-------------------------------------------

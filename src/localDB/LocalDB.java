@@ -167,6 +167,89 @@ public class LocalDB {
 			e.printStackTrace();
 		}
 		return true;
+		
+	}
+
+	public static boolean deleteVolumeByID(String inputID) {
+
+		try {
+			mConnection = DriverManager.getConnection(mURL);
+			mStatement = mConnection.createStatement();
+
+			String sql = "DELETE FROM volume WHERE id = " +  "'" + inputID + "'";
+
+			PreparedStatement pre = mConnection.prepareStatement(sql);
+			
+			pre.executeUpdate(sql);
+
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public static boolean deleteIssueByID(String inputID) {
+		try {
+			mConnection = DriverManager.getConnection(mURL);
+			mStatement = mConnection.createStatement();
+
+			String sql = "DELETE FROM issue WHERE id = " +  inputID ;
+
+			PreparedStatement pre = mConnection.prepareStatement(sql);
+			
+			pre.executeUpdate(sql);
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public static boolean deleteVolumeByName(String inputName) {
+		try {
+			mConnection = DriverManager.getConnection(mURL);
+			mStatement = mConnection.createStatement();
+
+			String sql = "DELETE FROM volume WHERE name = " +  "'" + inputName + "'";
+
+			PreparedStatement pre = mConnection.prepareStatement(sql);
+
+			pre.executeUpdate(sql);
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public static boolean deleteIssueByName(String inputName) {
+		try {
+			mConnection = DriverManager.getConnection(mURL);
+			mStatement = mConnection.createStatement();
+
+			String sql = "DELETE FROM issue WHERE name = " +  "'" + inputName + "'";
+
+			PreparedStatement pre = mConnection.prepareStatement(sql);
+
+			pre.executeUpdate(sql);
+			
+			return true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 
 	public static boolean addVolume(Volume vol) throws JSONException {
@@ -590,7 +673,8 @@ public class LocalDB {
 				val = rs.getString(1);
 				tObj = new JSONObject(val);
 				tIssue = new Issue(tObj);
-				//System.out.println("*fetching " + tIssue.getVolumeName() + " # " + tIssue.getIssueNum());
+				// System.out.println("*fetching " + tIssue.getVolumeName() + "
+				// # " + tIssue.getIssueNum());
 				iList.add(tIssue);
 			}
 
@@ -617,136 +701,127 @@ public class LocalDB {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
-				
-				return e1.getName().toLowerCase().compareTo(e2.getName().toLowerCase()) * ((order)?1:-1);
+
+				int result = e1.getName().toLowerCase().compareTo(e2.getName().toLowerCase());
+
+				if (result == 0) {
+					int e1IssueNumber = Integer.valueOf(e1.getIssueNum());
+					int e2IssueNumber = Integer.valueOf(e2.getIssueNum());
+
+					result = compareInteger(e1IssueNumber, e2IssueNumber);
+				}
+
+				return result * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
-	public static void sortIssuesByVolumeName(ArrayList<Issue> input,boolean order) throws JSONException {
+
+	public static void sortIssuesByVolumeName(ArrayList<Issue> input, boolean order) throws JSONException {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
-				
-				return e1.getVolumeName().compareTo(e2.getVolumeName()) * ((order)?1:-1);
+
+				return e1.getVolumeName().compareTo(e2.getVolumeName()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
-	public static void sortIssuesByIssueID(ArrayList<Issue> input,boolean order) throws JSONException {
+
+	public static void sortIssuesByIssueID(ArrayList<Issue> input, boolean order) throws JSONException {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
-				int result; 
-				
-				if ( Integer.valueOf(e1.getID()) > Integer.valueOf(e2.getID())){
-					result = 1;
-				}
-				else if ( Integer.valueOf(e1.getID()) < Integer.valueOf(e2.getID())){
-					result = -1;
-				}
-				else{
-					result = 0;
-				}
-				
-				return result * ((order)?1:-1) ;
+				int e1ID = Integer.valueOf(e1.getID());
+				int e2ID = Integer.valueOf(e2.getID());
+
+				return compareInteger(e1ID, e2ID) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
-	public static void sortIssuesByCoverDate(ArrayList<Issue> input,boolean order) throws JSONException {
+
+	public static void sortIssuesByCoverDate(ArrayList<Issue> input, boolean order) throws JSONException {
 
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
-			
-				return e1.getCoverDate().compareTo(e2.getCoverDate()) * ((order)?1:-1) ;
+
+				return e1.getCoverDate().compareTo(e2.getCoverDate()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
+
 	public static void sortVolumesByName(ArrayList<Volume> input, boolean order) throws JSONException {
 
 		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
 			public int compare(Volume e1, Volume e2) {
-				
-				return e1.getName().toLowerCase().compareTo(e2.getName().toLowerCase()) * ((order)?1:-1);
+
+				return e1.getName().toLowerCase().compareTo(e2.getName().toLowerCase()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
+
 	public static void sortVolumesByID(ArrayList<Volume> input, boolean order) throws JSONException {
 
 		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
 			public int compare(Volume e1, Volume e2) {
-				
-				return e1.getID().toLowerCase().compareTo(e2.getID().toLowerCase()) * ((order)?1:-1);
+
+				return e1.getID().toLowerCase().compareTo(e2.getID().toLowerCase()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
+
 	public static void sortVolumesByStartYear(ArrayList<Volume> input, boolean order) throws JSONException {
 
 		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
 			public int compare(Volume e1, Volume e2) {
-				
-				return e1.getStartYear().toLowerCase().compareTo(e2.getStartYear().toLowerCase()) * ((order)?1:-1);
+
+				return e1.getStartYear().toLowerCase().compareTo(e2.getStartYear().toLowerCase()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
+
 	public static void sortVolumesByPublisher(ArrayList<Volume> input, boolean order) throws JSONException {
 
 		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
 			public int compare(Volume e1, Volume e2) {
-				
-				return e1.getPublisher().toLowerCase().compareTo(e2.getPublisher().toLowerCase()) * ((order)?1:-1);
+
+				return e1.getPublisher().toLowerCase().compareTo(e2.getPublisher().toLowerCase()) * ((order) ? 1 : -1);
 			}
 		};
 
 		Collections.sort(input, comparatorIssue);
 
 	}
-	
+
 	public static void sortVolumesByStartCountOfIssues(ArrayList<Volume> input, boolean order) throws JSONException {
 
 		final Comparator<Volume> comparatorIssue = new Comparator<Volume>() {
 			public int compare(Volume e1, Volume e2) {
-				
-				int result;
-				
-				if ( Integer.valueOf(e1.getCountofIssue()) > Integer.valueOf(e2.getCountofIssue())){
-					result = 1;
-				}
-				else if ( Integer.valueOf(e1.getCountofIssue()) < Integer.valueOf(e2.getCountofIssue())){
-					result = -1;
-				}
-				else{
-					result = 0;
-				}
-				
-				return result * ((order)?1:-1) ;
-							
+
+				int e1CountOfIssue = Integer.valueOf(e1.getCountofIssue());
+				int e2CountOfIssue = Integer.valueOf(e2.getCountofIssue());
+
+				return compareInteger(e1CountOfIssue, e2CountOfIssue) * ((order) ? 1 : -1);
+
 			}
 		};
 
@@ -910,6 +985,20 @@ public class LocalDB {
 		}
 
 		return resultIssue;
+	}
+
+	public static int compareInteger(int inputA, int inputB) {
+		int result;
+
+		if (inputA == inputB) {
+			result = 0;
+		} else if (inputA < inputB) {
+			result = -1;
+		} else {
+			result = 1;
+		}
+
+		return result;
 	}
 
 }
