@@ -1,8 +1,6 @@
 package scenes;
 
-import java.awt.MenuItem;
 import java.awt.image.BufferedImage;
-import java.beans.EventHandler;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.ContextMenu;
@@ -12,11 +10,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import model.Issue;
 //////////////
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
-
-import javafx.event.*;
 /////////////////
 public class IssuePreview extends HBox{
 	private Issue issue;
@@ -39,11 +38,11 @@ public class IssuePreview extends HBox{
 		String info = issue.getVolumeName() + " #" + issue.getIssueNum() + "\nDate: " + issue.getCoverDate(); 
 		infoLbl = new Label(info);
 		getChildren().addAll(thumb, infoLbl);
-		/*
+		
 		//http://o7planning.org/en/11115/javafx-contextmenu-tutorial
 		
 		ContextMenu contextMenu = new ContextMenu();
-        MenuItem item1 = new MenuItem("Menu Item 1");
+        MenuItem item1 = new MenuItem("delete");
         item1.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
@@ -53,7 +52,7 @@ public class IssuePreview extends HBox{
             	// how to updateleft in this class???
             	// updateleft in the main use added list
             	// we got problem here so for now don't update
-            	
+            	infoLbl.setText("DELETE TEST ON CONTEXT MENU");
             }
         });
         // Add MenuItem to ContextMenu
@@ -64,10 +63,9 @@ public class IssuePreview extends HBox{
             @Override
             public void handle(ContextMenuEvent event) {
  
-                contextMenu.show(IssuePreview, event.getScreenX(), event.getScreenY());
+                contextMenu.show(infoLbl, event.getScreenX(), event.getScreenY());
             }
         });
-        */
 	}
 	
 	public Issue getIssue(){
