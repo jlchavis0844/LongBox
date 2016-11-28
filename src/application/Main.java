@@ -2,42 +2,32 @@ package application;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.json.simple.JSONObject;
-
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import localDB.LocalDB;
 import model.Issue;
 import model.Volume;
-import requests.CVrequest;
-import requests.CVrequestAsync;
-import requests.MarvelRequest;
 import requests.SQLQuery;
 import scenes.AddComic;
 import scenes.DetailView;
 import scenes.IssueLoadScreen;
 import scenes.IssuePreview;
-import scenes.IssueResult;
-import scenes.VolResult;
+import scenes.LogIn;
 import scenes.VolumePreview;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.*;
-
 
 public class Main extends Application {
 	@SuppressWarnings("rawtypes")
@@ -55,8 +45,12 @@ public class Main extends Application {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		scenes.LogIn login = new LogIn();
+
 		window = primaryStage;
 		window.setTitle("Digital Long Box");
+		// window.initStyle(StageStyle.TRANSPARENT);
+
 		layout = new BorderPane();
 
 		added = new ArrayList<Issue>();
@@ -67,22 +61,22 @@ public class Main extends Application {
 		allIssues = LocalDB.getAllIssues();
 		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
 
-		if(allIssues == null){
+		if (allIssues == null) {
 			System.out.println("no issues found ");
 			allIssues = new ArrayList<Issue>();
 		}
 
 		start = System.currentTimeMillis();
 		allVols = LocalDB.getAllVolumes();
-		System.out.println("volume loading took " + (System.currentTimeMillis()-start));
+		System.out.println("volume loading took " + (System.currentTimeMillis() - start));
 
-		if(allVols == null){
+		if (allVols == null) {
 			allVols = new ArrayList<>();
 		}
 		volPreviews = new ArrayList<VolumePreview>();
 
 		start = System.currentTimeMillis();
-		for(Volume v: allVols){
+		for (Volume v : allVols) {
 			volPreviews.add(new VolumePreview(v, allIssues));
 		}
 		System.out.println("time to load all volumes " + (System.currentTimeMillis() - start));
@@ -95,19 +89,23 @@ public class Main extends Application {
 
 			@Override
 			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
-				if(newValue instanceof VolumeCell){
-					if(!((VolumeCell) newValue).isFilled())
+				if (newValue instanceof VolumeCell) {
+					if (!((VolumeCell) newValue).isFilled())
 						((VolumeCell) newValue).setIssues(allIssues);
 				} else {
 					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					if(ti != null){	
-						if(ti.getValue() != null){
+					if (ti != null) {
+						if (ti.getValue() != null) {
 							Issue issue = ti.getValue().getIssue();
 							layout.setRight(new DetailView(issue));
-						} else System.out.println("something went wrong loading issue");
-					} else System.out.println("something went wrong loading issue");
+						} else
+							System.out.println("something went wrong loading issue");
+					} else
+						System.out.println("something went wrong loading issue");
 				}
-				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
+				boolean expanded = false;
+				if (treeView.getSelectionModel().getSelectedItem() != null)
+					expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
 				newValue.setExpanded(!expanded);
 			}
 
@@ -116,7 +114,7 @@ public class Main extends Application {
 		leftScroll = new ScrollPane();
 		leftScroll.setPrefHeight(1000);
 		leftScroll.setMaxHeight(1080);
-		//leftScroll.setContent(volListView);
+		// leftScroll.setContent(volListView);
 		leftScroll.setContent(treeView);
 		leftScroll.setPadding(new Insets(10));
 
@@ -131,33 +129,36 @@ public class Main extends Application {
 			new AddComic(added);
 			updateLeft();
 		});
-
+		window.setMaximized(true);
 		Scene scene = new Scene(layout, 1900, 1050);
-		String style= getClass().getResource("../application.css").toExternalForm();
-		System.out.println(style);
+		System.out.println("applying " + getClass().getResource("../application.css").toExternalForm());
+		String style = getClass().getResource("../application.css").toExternalForm();
 		scene.getStylesheets().add(style);
 		window.setScene(scene);
 		window.show();
-		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
+
+		System.out.println(
+				"Done loading after " + (System.currentTimeMillis() - start) + ", starting background loading");
 		backgroundLoadVols();
 	}
 
 	public static void main(String[] args) {
-		//		org.json.JSONObject jo = CVrequest.getIssue("488852");
-		//		Volume test = new Volume(jo.getJSONObject("volume"));
-		//		LocalDB.addVolume(test);
-		//		new VolumePreview(test);
-		//MarvelRequest.test();
-		//		ArrayList<Volume> vols = CVrequestAsync.searchVolume("Batman", "DC");
-		//		for(Volume v: vols)
-		//			System.out.println(v.toString());
-		launch(args);
-		//System.out.println("to adjust");
-		//SQLQuery.getLoginInfo();
-		System.exit(0);
+		// org.json.JSONObject jo = CVrequest.getIssue("488852");
+		// Volume test = new Volume(jo.getJSONObject("volume"));
+		// LocalDB.addVolume(test);
+		// new VolumePreview(test);
+		// MarvelRequest.test();
+		// ArrayList<Volume> vols = CVrequestAsync.searchVolume("Batman", "DC");
+		// for(Volume v: vols)
+		// System.out.println(v.toString());
+		 launch(args);
+		// System.out.println("to adjust");
+		// SQLQuery.getLoginInfo();
+//		String arr[] = {"123","456","789"};
+//		SQLQuery.removeIssue(arr);
 	}
 
-	public static void updateLeft(){
+	public static void updateLeft() {
 		new IssueLoadScreen(added, allIssues, volPreviews);
 		treeView.setRoot(buildRoot());
 		added.clear();
@@ -165,13 +166,14 @@ public class Main extends Application {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static TreeItem buildRoot(){
+	public static TreeItem buildRoot() {
 		TreeItem root = new TreeItem<VolumePreview>();
 
 		root.setValue("Volumes");
 		root.setExpanded(true);
-		for(VolumePreview vp: volPreviews){
-			//vp.update(allIssues);
+		for (VolumePreview vp : volPreviews) {
+			// vp.update(allIssues);
+
 			TreeItem temp = new VolumeCell(vp);
 			root.getChildren().add(temp);
 		}
@@ -181,12 +183,18 @@ public class Main extends Application {
 	/**
 	 * Loads all issues for all volumes in the background
 	 */
-	public static void backgroundLoadIssues(){
+	public static void backgroundLoadIssues() {
+		System.out.println("Starting background load of issues");
 		ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-		for(Object obj : treeView.getRoot().getChildren()){
+		for (Object obj : treeView.getRoot().getChildren()) {
 			executorService.execute(new Runnable() {
-				public void run(){
+				public void run() {
+					Platform.runLater(new Runnable() {
+						public void run() {
+							((VolumeCell) obj).setIssues(allIssues);
+						}
+					});
 					((VolumeCell) obj).setIssues(allIssues);
 				}
 			});
@@ -197,23 +205,27 @@ public class Main extends Application {
 	/**
 	 * loads all the volume images in the back ground
 	 */
-	public static void backgroundLoadVols(){
+	public static void backgroundLoadVols() {
+		System.out.println("Starting background load of volumes");
 		ExecutorService executorService = Executors.newFixedThreadPool(10);
 		int volNum = allVols.size();
 		AtomicInteger counter = new AtomicInteger(0);
 
-		for(Object obj : treeView.getRoot().getChildren()){
+		for (Object obj : treeView.getRoot().getChildren()) {
 			executorService.execute(new Runnable() {
-				public void run(){
-					System.out.println(counter.incrementAndGet() + " ?= " + volNum);
-					((VolumePreview)((VolumeCell) obj).getValue()).setImage();
-					System.out.println("done loading " + ((VolumePreview)((VolumeCell) obj).getValue()).getVolName());
+				public void run() {
+					counter.incrementAndGet();
+					// System.out.println(counter.incrementAndGet() + " ?= " +
+					// volNum);
+					((VolumePreview) ((VolumeCell) obj).getValue()).setImage();
+					System.out.println("done loading " + ((VolumePreview) ((VolumeCell) obj).getValue()).getVolName());
 				}
 			});
 		}
 		executorService.shutdown();
 
-		while(counter.get() != volNum){};//wait here to load volumes
-		backgroundLoadIssues();//start loading issues
+		while (counter.get() != volNum) {
+		};// wait here to load volumes
+		backgroundLoadIssues();// start loading issues
 	}
 }

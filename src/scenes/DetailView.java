@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,13 +14,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import localDB.LocalDB;
 import model.Issue;
-import requests.CVImage;
 
 public class DetailView extends BorderPane{
-
+	private Button editButton;
 	public DetailView(Issue issue) {
 		super();
 		
@@ -42,6 +40,7 @@ public class DetailView extends BorderPane{
 		TextField cDate = new TextField(issue.getCoverDate());
 		TextField volName = new TextField(issue.getVolumeName());
 		TextField writer = new TextField(issue.getPerson("writer"));
+		writer.setEditable(false);
 		//center.getChildren().addAll(volName,issueNum,name,cDate, writer);
 
 		this.setPadding(new Insets(10));
@@ -70,15 +69,21 @@ public class DetailView extends BorderPane{
 		grid.add(new TextField(issue.getPerson("art")), 1, 6);
 		
 		WebView descBox = new WebView();
+		descBox.setMinHeight(50);
+		descBox.setPrefHeight(100);
 		String desc = issue.getDescription();
 		Document doc = Jsoup.parse(desc);
 		doc.select("table").remove();
+		doc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" +
+					getClass().getResource("../application.css").toExternalForm() + "\" />");
+		doc.select("h4").remove();
 		desc = doc.toString();
+		//descBox.getEngine().setUserStyleSheetLocation(getClass().getResource("../application.css").toExternalForm());
 		descBox.getEngine().loadContent(desc);
 		descBox.setMaxHeight(300);
 		//descBox.setFontScale(0.75);
 		
-		BufferedImage bi = issue.getLocalImg("medium");
+		BufferedImage bi = issue.getImage("medium");
 		Image image = SwingFXUtils.toFXImage(bi, null);
 		ImageView imageView = new ImageView(image);
 		
@@ -91,6 +96,14 @@ public class DetailView extends BorderPane{
 		//setCenter(center);
 		setRight(imageView);	
 		
+		editButton = new Button("Save Changes");
+		editButton.setVisible(true);
+		editButton.setOnAction(e -> {
+			LocalDB.update(issue.getID(), "name", name.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "issue_number", issueNum.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "cover_date", cDate.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "volume", volName.getSelectedText().toString(), 0);
+		});
+		grid.add(editButton, 0, 7);
 	}
-
 }

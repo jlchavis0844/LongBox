@@ -5,7 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -39,6 +38,8 @@ public class ConfirmBox {
 		noBtn.setOnAction(e -> window.close());
 				
 		Scene scene = new Scene(layout, 200, 100);
+		String style= ConfirmBox.class.getResource("../application.css").toExternalForm();
+		scene.getStylesheets().add(style);
 		window.setScene(scene);
 		window.showAndWait();
 		

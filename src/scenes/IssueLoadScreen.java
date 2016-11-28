@@ -3,17 +3,11 @@ package scenes;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.adapter.ReadOnlyJavaBeanStringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Slider;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -23,21 +17,76 @@ import model.Issue;
 
 public class IssueLoadScreen {
 
-	public IssueLoadScreen(ArrayList<Issue> added, ArrayList<Issue> allIssues, List<VolumePreview> volPreviews) {
+	public IssueLoadScreen(List<Issue> added, List<Issue> allIssues, List<VolumePreview> volPreviews) {
 		Stage stage = new Stage();
 		stage.initModality(Modality.APPLICATION_MODAL);
-		Group root = new Group();
-		Scene scene = new Scene(root);
-		stage.setScene(scene);
+
+		BorderPane layout = new BorderPane();
+		layout.setPadding(new Insets(20));
 		stage.setTitle("Progress Controls");
 		Label label = new Label("loading new comics...");
+		VBox myVBox = new VBox(10);
 
-		HBox hb = new HBox();
-		hb.setSpacing(5);
-		hb.setAlignment(Pos.CENTER);
-		hb.getChildren().addAll(label);
-		scene.setRoot(hb);
-		stage.show();
+		ArrayList<IssuePreview> addList = new ArrayList<>();
+		ArrayList<Issue> addedCopy = new ArrayList<>(added);
+		IssuePreview ip = null;
+		
+		for(Issue i: addedCopy){
+			ip = new IssuePreview(i);
+			if(LocalDB.exists(i.getID(), LocalDB.ISSUE)){
+				ip.setAddInfo("Already in collection");
+				added.remove(i);
+			}
+			addList.add(ip);
+		}
+		
+		// now add the arraylist of HBox into the VBox
+		myVBox.getChildren().addAll(addList);
+		//layout.getChildren().add(myVBox);
+		// show the VBox on layout
+		
+		layout.setCenter(myVBox);
+		layout.setTop(label);
+		
+		Button back = new Button("Back to adding comics");
+		Button newAdd = new Button("Start add over");
+		Button cancel = new Button("Stop and go back to collection");
+		Button go = new Button("Continue");
+		
+		back.setOnAction(e -> {
+			stage.close();
+			new AddComic(added);
+		});
+		
+		newAdd.setOnAction(e -> {
+			stage.close();
+			added.clear();
+			new AddComic(added);
+		});
+		
+		cancel.setOnAction(e -> {
+			stage.close();
+			added.clear();
+		});
+		
+		go.setOnAction(e -> {
+			stage.close();
+		});
+		
+		HBox bottom = new HBox(5);
+		bottom.getChildren().addAll(back, newAdd, cancel, go);
+		layout.setBottom(bottom);
+		Scene scene = new Scene(layout);
+		stage.setScene(scene);
+		stage.showAndWait();
+		// sleep 1000 msec
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		for(Issue i: added){
 
 			LocalDB.addIssue(i);
@@ -53,11 +102,12 @@ public class IssueLoadScreen {
 			if(foundIndex == -1){
 				volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
 			}
+			
 			for(VolumePreview pv: volPreviews){
 				pv.setImage();
 			}
-
 		}
 		stage.close();
 	}
+	
 }

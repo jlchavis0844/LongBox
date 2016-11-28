@@ -6,7 +6,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import localDB.LocalDB;
 import requests.*;
 
 public class Issue {
@@ -58,7 +57,7 @@ public class Issue {
 			return tempObj.getString("name");
 		} else return null;
 	}
-	
+
 	public String getVolumeID(){
 		if(check("volume")){
 			JSONObject tempObj = jo.getJSONObject("volume");
@@ -99,49 +98,37 @@ public class Issue {
 			return jo.getString("deck");
 		} else return null;
 	}
-	
+
 	public String getImgURL(String size){
 		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
-		if(ArrayUtils.contains(sizes, size) && jo.getJSONObject("images").has(size)){
-			return jo.getJSONObject("image").getString(size + "_url");
-		} else return null;
+		if(!ArrayUtils.contains(sizes, size)){
+			System.out.println("Could not find " + size + " for " + getVolumeName() + " #" + issueNum);
+			return null;
+		}
+		JSONObject imgJO = jo.getJSONObject("image");
+		if(imgJO.has(size + "_url")){
+			return imgJO.getString(size + "_url");
+		} else {
+			System.out.println("Could not find " + size + " for " + getVolumeName() + " #" + issueNum);
+			return null;
+		}
+	}
+
+	public BufferedImage getImage(String size){
+		if(jo.has(size)){
+			return getLocalImg(size);
+		} else {
+			String url = getImgURL(size);
+			return CVImage.getRemoteImage(url);
+		}
 	}
 
 	public BufferedImage getLocalImg(String size){
 		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
-		JSONObject tJO = jo.getJSONObject("image");
-		if(tJO.has(size) && ArrayUtils.contains(sizes, size)){
+		if(jo.has(size) && ArrayUtils.contains(sizes, size)){
 			return CVImage.getLocalIssueImg(id, size);
 		} else return null;
 	}
-//	
-//	public String getMediumUrl(){
-//		if(check("image")){
-//			return jo.getJSONObject("image").get("medium_url").toString();
-//		} else return null;
-//	}
-//
-//	public BufferedImage getMediumImg(){
-//		if(local && check("medium")){
-//			return CVImage.getLocalIssueImg(id, "medium");
-//		} else if(check("image")){
-//			return CVImage.getRemoteImage(getMediumUrl());
-//		} else return null;
-//	}
-//	
-//	public String getThumbUrl(){
-//		if(check("image")){
-//			return jo.getJSONObject("image").getString("thumb_url");
-//		} else return null;
-//	}
-//
-//	public BufferedImage getThumbImg(){
-//		if(check("thumb")){
-//			return CVImage.getLocalIssueImg(id, "thumb");
-//		} else if(check("image")){
-//			return CVImage.getRemoteImage(getThumbUrl());
-//		} else return null;
-//	}
 
 	public String toString(){
 		return "issue#: "+issueNum+"\tid: "+id+"\t name: "+name+"\t\tcover date: "+coverDate;
