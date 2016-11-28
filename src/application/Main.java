@@ -195,7 +195,7 @@ public class Main extends Application {
 							((VolumeCell) obj).setIssues(allIssues);
 						}
 					});
-					((VolumeCell) obj).setIssues(allIssues);
+					//((VolumeCell) obj).setIssues(allIssues);
 				}
 			});
 		}
