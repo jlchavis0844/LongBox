@@ -1,9 +1,7 @@
 package scenes;
 
 import org.jsoup.Jsoup;
-import org.jsoup.examples.HtmlToPlainText;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
@@ -27,7 +25,7 @@ public class IssueResult extends VBox {
 		
 		text = new Label();
 		text.setWrapText(true);
-		String info = "Issue# " + issue.getIssueNum()+ "\tDate: "  + issue.getCoverDate() + "\n" + issue.getName();
+		String info = "Issue# " + issue.getIssueNum()+ " \tDate: "  + issue.getCoverDate() + "\n" + issue.getName();
 		Document doc = Jsoup.parse(issue.getDescription());
 		Elements element = doc.select("table").remove();
 		

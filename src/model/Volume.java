@@ -1,12 +1,10 @@
 package model;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.json.JSONObject;
 
-import localDB.LocalDB;
 import requests.CVImage;
 import requests.CVrequest;
 
@@ -14,7 +12,6 @@ import requests.CVrequest;
 public class Volume {
 
 	private JSONObject vol = new JSONObject();
-	private ArrayList<Issue> arrofissue = new ArrayList<Issue>();
 	private String id;
 	private String name;
 	private String startYear;
@@ -73,22 +70,7 @@ public class Volume {
 		vol = CVrequest.getVolumeInfo(id);
 		init();
 	}
-	
-	public boolean isFull (){
-		return full;
-	}
-	
-	// return the arraylist of issue using getVolumeIDs
-	// passing in the id from getID function
-	public ArrayList<Issue> getArraylistofIssue (){
-		arrofissue = CVrequest.getVolumeIDs(getID());
-		return arrofissue;
-	}
-	
-	public Volume getVolumeinIssue (Issue inIssue){
-		return inIssue.getVolume();
-	}
-	
+
 	public String toString(){		
 		return ("name: " + name + "\t\t\tstart_year: " + startYear + "\tpublisher: " + publisher 
 				+ "\t\tid: " + id + "\tcount_of_issues: " + numIssues);		
@@ -113,7 +95,7 @@ public class Volume {
 	public BufferedImage getLocalImg(String size){
 		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
 		if(vol.has(size) && ArrayUtils.contains(sizes, size)){
-			return CVImage.getLocalImage(vol.getString(size));
+			return CVImage.getLocalVolumeImg(id, size);
 		} else return null;
 	}
 	
@@ -133,72 +115,15 @@ public class Volume {
 	//return buffered image of the size given, locally if possible, remotely if needed
 	public BufferedImage getImage(String size){
 		if(vol.has(size)){
-			return CVImage.getLocalImage(vol.getString(size)); 
+			return CVImage.getLocalVolumeImg(id, size); 
 		} else if(check(vol, "image")){
 			String url = vol.getJSONObject("image").getString(size + "_url");
+			System.out.println("WARNING: Fetching online image for volume " + name);
 			return CVImage.getRemoteImage(url);
 		}
 		return null;
 	}
 
-	// return the json object image field
-	// return null if the field contain null or empty
-	// this one get image from volume object inside an array
-	public String getMediumImageUrl (){
-		if(check(vol, "image")){
-			JSONObject imageobjects = vol.getJSONObject("image"); 
-	       	if(check(imageobjects,"medium_url")){
-	       		return imageobjects.get("medium_url").toString();
-	       	}
-		}
-		return null;
-	}
-	
-	// return the json object image field
-	// return null if the field contain null or empty
-	// this one get image from volume object inside an array
-	public String getthumbImageUrl (){
-		if(check(vol, "image")){
-			JSONObject imageobjects = vol.getJSONObject("image"); 
-	       	if(check(imageobjects,"thumb_url")){
-	       		return imageobjects.get("thumb_url").toString();
-	       	}
-		}
-		return null;
-	}
-	
-	// return the json object image field thumb url
-	// return null if the field contain null or empty
-	// this function work on the full volume json object
-	public String getthumbImageUrlVolumeFull (){
-		if(check(vol, "results")){
-			JSONObject resultsobjects = vol.getJSONObject("results");
-			if(check(resultsobjects, "image")){
-				JSONObject imageobjects = resultsobjects.getJSONObject("image"); 
-		       	if(check(imageobjects,"thumb_url")){
-		       		return imageobjects.get("thumb_url").toString();
-		       	}
-			}
-		}
-		return null;
-	}
-	
-	// return the json object image field medium url
-	// return null if the field contain null or empty
-	// this function work on the full volume json object
-	public String getmediumImageUrlVolumeFull (){
-		if(check(vol, "results")){
-			JSONObject resultsobjects = vol.getJSONObject("results");
-			if(check(resultsobjects, "image")){
-				JSONObject imageobjects = resultsobjects.getJSONObject("image"); 
-		       	if(check(imageobjects,"medium_url")){
-		       		return imageobjects.get("medium_url").toString();
-		       	}
-			}
-		}
-		return null;
-	}
-	
 	// return the json object resource_type field
 	// return null if the field contain null or empty
 	public String getResource_type (){
@@ -219,10 +144,18 @@ public class Volume {
 	public String getStartYear (){
 		return startYear;
 	}
+	/*
+	public void populate (){
+		full = true;
+	}
+
+	public boolean isFull (){
+		return full;
+	}*/
 
 	// return the private member vol
 	// which is volume json object
-	public JSONObject getVolume (){
+	public JSONObject getJSONObject(){
 		return vol;
 	}
 

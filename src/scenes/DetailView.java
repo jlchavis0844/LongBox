@@ -1,40 +1,26 @@
 package scenes;
 
 import java.awt.image.BufferedImage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import localDB.LocalDB;
 import model.Issue;
 
-
-import org.json.JSONException;
-
-
-import application.Main;
-import requests.CVImage;
-
 public class DetailView extends BorderPane{
 	private Button editButton;
-	public DetailView(Issue issue) throws JSONException {
+	public DetailView(Issue issue) {
 		super();
 		
 		if(!issue.isFull())
@@ -56,8 +42,7 @@ public class DetailView extends BorderPane{
 		TextField writer = new TextField(issue.getPerson("writer"));
 		writer.setEditable(false);
 		//center.getChildren().addAll(volName,issueNum,name,cDate, writer);
-		//name.getSelectedText();
-		
+
 		this.setPadding(new Insets(10));
 		
 		GridPane grid = new GridPane();
@@ -84,15 +69,21 @@ public class DetailView extends BorderPane{
 		grid.add(new TextField(issue.getPerson("art")), 1, 6);
 		
 		WebView descBox = new WebView();
+		descBox.setMinHeight(50);
+		descBox.setPrefHeight(100);
 		String desc = issue.getDescription();
 		Document doc = Jsoup.parse(desc);
 		doc.select("table").remove();
+		doc.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" +
+					getClass().getResource("../application.css").toExternalForm() + "\" />");
+		doc.select("h4").remove();
 		desc = doc.toString();
+		//descBox.getEngine().setUserStyleSheetLocation(getClass().getResource("../application.css").toExternalForm());
 		descBox.getEngine().loadContent(desc);
 		descBox.setMaxHeight(300);
 		//descBox.setFontScale(0.75);
 		
-		BufferedImage bi = issue.getMediumImg();
+		BufferedImage bi = issue.getImage("medium");
 		Image image = SwingFXUtils.toFXImage(bi, null);
 		ImageView imageView = new ImageView(image);
 		
@@ -105,7 +96,7 @@ public class DetailView extends BorderPane{
 		//setCenter(center);
 		setRight(imageView);	
 		
-		editButton = new Button("Edit Issue");
+		editButton = new Button("Save Changes");
 		editButton.setVisible(true);
 		editButton.setOnAction(e -> {
 			LocalDB.update(issue.getID(), "name", name.getSelectedText().toString(), 0);
@@ -115,5 +106,4 @@ public class DetailView extends BorderPane{
 		});
 		grid.add(editButton, 0, 7);
 	}
-
 }

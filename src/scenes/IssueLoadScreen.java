@@ -1,25 +1,12 @@
 package scenes;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.adapter.ReadOnlyJavaBeanStringProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Slider;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -27,59 +14,106 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import localDB.LocalDB;
 import model.Issue;
-import javafx.scene.paint.Color;
-//
-import javafx.scene.shape.Arc;
-import javafx.scene.shape.ArcType;
-//
-public class IssueLoadScreen{
-	private BorderPane layout;
 
-	public IssueLoadScreen(ArrayList<Issue> added, ArrayList<Issue> allIssues, List<VolumePreview> volPreviews) {
+/*
+ * the screen the show up after user close the added scene
+ * right now the code will run through the list of user selected issues
+ * any issue that is already in the collection will be ignore
+ * issue that is not in collection will be display and put in 
+ * an arraylist of issue for adding uppon closing the scene
+ * or clicking on continue button.
+ * 
+ *  cancel work, back and newadd doesn't and i don't know why.
+ */
+public class IssueLoadScreen {
 
-		// 1 verticle box for the whole thing
-		// for each issue add an Horizontal box
-		// the box have the issue icon on the left
-		// text in central and add or notadd label on right.
+	public IssueLoadScreen(List<Issue> added, List<Issue> allIssues, List<VolumePreview> volPreviews) {
+		Stage stage = new Stage();
+		stage.initModality(Modality.APPLICATION_MODAL);
+
+		BorderPane layout = new BorderPane();
+		layout.setPadding(new Insets(20));
+		stage.setTitle("Progress Controls");
+		Label label = new Label("loading new comics...");
 		VBox myVBox = new VBox(10);
-		//myVBox.getChildren().add(myHBox);
-		ArrayList<HBox> myHBoxArr = new ArrayList<HBox>();
-		
-		// check for the issue in DB and figure out whether 
-		// we need to add them or not then create IssueHbox 
-		// for each issue and put them in an arraylist of HBox
-		// so that we can add all of the HBox in the VBox later on
-		ArrayList<Issue> temp = new ArrayList<Issue>();
-		ArrayList<Issue> notadd = new ArrayList<Issue>();
-		for(Issue i: added){
-			if(!(LocalDB.exists(i.getID(), LocalDB.ISSUE))){
-				// not in db ok to add
-				temp.add(i);
-				HBox myhbox = new IssueHbox(i,true);
-				myHBoxArr.add(myhbox);
-			}
-			else{
-				notadd.add(i);
-				HBox myhbox = new IssueHbox(i,false);
-				myHBoxArr.add(myhbox);
-			}
-		}
-		myVBox.getChildren().addAll(myHBoxArr);
-		
-		Stage window = new Stage();
-		window.setTitle("Progress Controls");
-		window.initModality(Modality.APPLICATION_MODAL);
-		layout = new BorderPane();
 
-		layout.setTop(myVBox);
-		BorderPane.setMargin(myVBox, new javafx.geometry.Insets(10));
+		ArrayList<IssuePreview> addList = new ArrayList<>();
+		ArrayList<Issue> addedCopy = new ArrayList<>(added);
+		ArrayList<Issue> willAdd = new ArrayList<Issue>();
+		IssuePreview ip = null;
 		
-		Scene scene = new Scene(layout, 900, 500);
-		window.setScene(scene);
-		window.showAndWait();
+		for(Issue i: addedCopy){
+			ip = new IssuePreview(i);
+			if(LocalDB.exists(i.getID(), LocalDB.ISSUE)){
+				ip.setAddInfo("Already in collection");
+				added.remove(i);
+			}
+			// the list of issue preview for display to the user
+			addList.add(ip);
+			
+			//the list of issue that we will actually add after operation is over
+			willAdd.add(i);
+		}
 		
-		window.setOnCloseRequest(e ->{
-			for(Issue i: temp){
+		// now add the arraylist of HBox into the VBox
+		myVBox.getChildren().addAll(addList);
+		//layout.getChildren().add(myVBox);
+		// show the VBox on layout
+		
+		layout.setCenter(myVBox);
+		layout.setTop(label);
+		
+		Button back = new Button("Back to adding comics");
+		Button newAdd = new Button("Start add over");
+		Button cancel = new Button("Stop and go back to collection");
+		Button go = new Button("Continue");
+		
+		back.setOnAction(e -> {
+			stage.close();
+			new AddComic(added);
+		});
+		
+		newAdd.setOnAction(e -> {
+			stage.close();
+			added.clear();
+			new AddComic(added);
+		});
+		
+		// user cancel what they selected
+		cancel.setOnAction(e -> {
+			stage.close();
+			added.clear();
+		});
+		
+		go.setOnAction(e -> {
+			// add the issue to DB
+			for(Issue i: willAdd){
+
+				LocalDB.addIssue(i);
+				allIssues.add(i);
+				int foundIndex = -1;
+				for(int j = 0; j < volPreviews.size(); j++){
+					if(volPreviews.get(j).getVolName().equals(i.getVolumeName())){
+						foundIndex = j;
+						volPreviews.get(j).update(allIssues);
+					}
+				}
+
+				if(foundIndex == -1){
+					volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
+				}
+				
+				for(VolumePreview pv: volPreviews){
+					pv.setImage();
+				}
+			}
+			//then close the stage
+			stage.close();
+		});
+
+		// if user close the stage and ignore the continue button we still add what need to be add
+		stage.setOnCloseRequest(e ->{
+			for(Issue i: willAdd){
 
 				LocalDB.addIssue(i);
 				allIssues.add(i);
@@ -100,7 +134,13 @@ public class IssueLoadScreen{
 
 			}		
 		});
-
+		
+		HBox bottom = new HBox(5);
+		bottom.getChildren().addAll(back, newAdd, cancel, go);
+		layout.setBottom(bottom);
+		Scene scene = new Scene(layout);
+		stage.setScene(scene);
+		stage.showAndWait();
 	}
 	
 }

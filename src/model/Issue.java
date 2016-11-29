@@ -2,10 +2,10 @@ package model;
 
 import java.awt.image.BufferedImage;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import localDB.LocalDB;
 import requests.*;
 
 public class Issue {
@@ -57,7 +57,7 @@ public class Issue {
 			return tempObj.getString("name");
 		} else return null;
 	}
-	
+
 	public String getVolumeID(){
 		if(check("volume")){
 			JSONObject tempObj = jo.getJSONObject("volume");
@@ -99,31 +99,34 @@ public class Issue {
 		} else return null;
 	}
 
-	public String getMediumUrl(){
-		if(check("image")){
-			return jo.getJSONObject("image").get("medium_url").toString();
-		} else return null;
+	public String getImgURL(String size){
+		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
+		if(!ArrayUtils.contains(sizes, size)){
+			System.out.println("Could not find " + size + " for " + getVolumeName() + " #" + issueNum);
+			return null;
+		}
+		JSONObject imgJO = jo.getJSONObject("image");
+		if(imgJO.has(size + "_url")){
+			return imgJO.getString(size + "_url");
+		} else {
+			System.out.println("Could not find " + size + " for " + getVolumeName() + " #" + issueNum);
+			return null;
+		}
 	}
 
-	public BufferedImage getMediumImg(){
-		if(local && check("medium")){
-			return CVImage.getLocalImage(id, "medium", LocalDB.ISSUE);
-		} else if(check("image")){
-			return CVImage.getRemoteImage(getMediumUrl());
-		} else return null;
-	}
-	
-	public String getThumbUrl(){
-		if(check("image")){
-			return jo.getJSONObject("image").getString("thumb_url");
-		} else return null;
+	public BufferedImage getImage(String size){
+		if(jo.has(size)){
+			return getLocalImg(size);
+		} else {
+			String url = getImgURL(size);
+			return CVImage.getRemoteImage(url);
+		}
 	}
 
-	public BufferedImage getThumbImg(){
-		if(check("thumb")){
-			return CVImage.getLocalImage(id, "thumb", LocalDB.ISSUE);
-		} else if(check("image")){
-			return CVImage.getRemoteImage(getThumbUrl());
+	public BufferedImage getLocalImg(String size){
+		String sizes[] = {"icon","thumb","tiny","small","super","screen","medium"};
+		if(jo.has(size) && ArrayUtils.contains(sizes, size)){
+			return CVImage.getLocalIssueImg(id, size);
 		} else return null;
 	}
 

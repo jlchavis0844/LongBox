@@ -1,20 +1,29 @@
 package scenes;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.List;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import localDB.LocalDB;
+import model.Issue;
+import model.Volume;
+
+/*
+ * context menu import
+ */
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.layout.HBox;
-import model.Issue;
-import model.Volume;
+/*
+ * end of context menu import
+ */
 
 public class VolumePreview extends HBox{
 	private Volume vol;
@@ -24,23 +33,23 @@ public class VolumePreview extends HBox{
 	/**
 	 * Makes a preview of a volume, to load the image, us setImage()
 	 * @param rhVol
-	 * @param issues
+	 * @param allIssues
 	 */
-	public VolumePreview(Volume rhVol, ArrayList<Issue> issues) {
+	public VolumePreview(Volume rhVol, List<Issue> allIssues) {
 		super();
 
 		vol = rhVol;
 		long start = System.currentTimeMillis();
-				BufferedImage bi = vol.getImage("thumb");
-				Image image = SwingFXUtils.toFXImage(bi, null);
-				thumb = new ImageView(image);
+		//		BufferedImage bi = vol.getImage("thumb");
+		//		Image image = SwingFXUtils.toFXImage(bi, null);
+		//		thumb = new ImageView(image);
 		thumb = new ImageView();
-		System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
+		//System.out.println("Image fetch took :" + (System.currentTimeMillis() - start));
 		thumb.setFitHeight(50);
 		thumb.setFitWidth(33);
 
 		int counter = 0;
-		for(Issue i : issues){
+		for(Issue i : allIssues){
 			if(i.getVolumeID().equals(vol.getID())){
 				counter++;
 			}
@@ -52,6 +61,9 @@ public class VolumePreview extends HBox{
 		infoLbl = new Label(info);
 		getChildren().addAll(thumb, infoLbl);
 		
+		/*
+		 * context menu code
+		 */
 		ContextMenu contextMenu = new ContextMenu();
         MenuItem item1 = new MenuItem("delete");
         item1.setOnAction(new EventHandler<ActionEvent>() {
@@ -63,7 +75,8 @@ public class VolumePreview extends HBox{
             	// how to updateleft in this class???
             	// updateleft in the main use added list
             	// we got problem here so for now don't update
-            	infoLbl.setText("DELETE TEST ON CONTEXT MENU");
+            	infoLbl.setText("VOLUME DELETED RESET THE PROGRAM FOR UPDATE");
+            	LocalDB.deleteVolumeByID(rhVol.getID());
             }
         });
         // Add MenuItem to ContextMenu
@@ -77,15 +90,18 @@ public class VolumePreview extends HBox{
                 contextMenu.show(infoLbl, event.getScreenX(), event.getScreenY());
             }
         });
+        /*
+         * end of context menu code
+         */
 	}
 
 	public String getVolName(){
 		return vol.getName();
 	}
 
-	public void update(ArrayList<Issue> issues){
+	public void update(List<Issue> allIssues){
 		int counter = 0;
-		for(Issue i : issues){
+		for(Issue i : allIssues){
 			if(i.getVolumeID().equals(vol.getID())){
 				counter++;
 			}
