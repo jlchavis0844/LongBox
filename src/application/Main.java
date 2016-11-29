@@ -5,11 +5,18 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
+import javax.xml.ws.Action;
 
+import javafx.geometry.Rectangle2D;
+
+import javafx.scene.Group;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import localDB.LocalDB;
@@ -27,10 +34,20 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import org.json.JSONException;
+import javafx.stage.Screen;
+import javafx.scene.control.*;
+import javafx.scene.paint.Color;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.application.Platform;
+import javafx.scene.input.*;
+import javafx.scene.input.KeyCombination;
 
-
+@SuppressWarnings({ "restriction", "unused" })
 public class Main extends Application {
 	@SuppressWarnings("rawtypes")
 	private Stage window;
@@ -42,8 +59,8 @@ public class Main extends Application {
 	private static ArrayList<Volume> allVols;
 	private static List<IssuePreview> prevs;
 	private static List<VolumePreview> volPreviews;
-	private static ListView<IssuePreview> leftList;
-	private static ListView<VolumePreview> volListView;
+	private static ListView<IssuePreview> leftList; // need to sort this
+	private static ListView<VolumePreview> volListView; // need to sort this
 	private static ObservableList<IssuePreview> obvRes;
 	private static ObservableList<VolumePreview> volObvRes;
 	private static ScrollPane leftScroll;
@@ -51,9 +68,17 @@ public class Main extends Application {
 	private Button addButton;
 	private static TreeView treeView;
 
+	Stage stage;
+	Scene defaultScene, scene2;
+	Scene searchSceneByIssue, searchSceneByVolume;
+
+	public static final int SCREEN_WIDTH = (int) Screen.getPrimary().getVisualBounds().getWidth();
+	public static final int SCREEN_HEIGHT = (int) Screen.getPrimary().getVisualBounds().getHeight();
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public void start(Stage primaryStage) throws Exception {
+
+	// public void genericStart(Stage primaryStage) throws Exception {
+	public void genericStart(Stage primaryStage) throws Exception {
 		window = primaryStage;
 		window.setTitle("Digital Long Box");
 		layout = new BorderPane();
@@ -66,65 +91,23 @@ public class Main extends Application {
 		allIssues = LocalDB.getAllIssues();
 		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
 
-		if(allIssues == null){
+		if (allIssues == null) {
 			System.out.println("no issues found ");
 			allIssues = new ArrayList<Issue>();
 		}
 
-		//		System.out.println("generating previews");
-		//		start = System.currentTimeMillis();
-		//		prevs = new ArrayList<IssuePreview>();
-		//
-		//		Long pStart = (long) 0.0;
-		//		Vector<Long> times = new Vector<Long>();
-		//		
-		//		for(Issue i: allIssues){
-		//			pStart = System.currentTimeMillis();
-		//			prevs.add(new IssuePreview(i));
-		//			times.addElement(System.currentTimeMillis() - pStart);
-		//		}
-		//		System.out.println("Done loading previews after " + (System.currentTimeMillis() - start));
-		//		
-		//		Long total = (long)0.0;
-		//		for(Long t: times){
-		//			total = total + t;
-		//		}
-		//		
-		//		System.out.println("Avg preview build time: " +(total / times.size()));
-		//		
-		//		
-		//		
-		//		System.out.println("building window");
-		//		start = System.currentTimeMillis();
-		//		leftList = new ListView<>();
-		//		leftList.setPrefHeight(1000);
-		//		obvRes = FXCollections.observableList(prevs);
-		//		leftList.setItems(obvRes);
-		//
-		//		leftScroll = new ScrollPane();
-		//		leftScroll.setPrefHeight(1000);
-		//		leftScroll.setContent(leftList);
-		//		leftScroll.setPadding(new Insets(10));
-		//		layout.setLeft(leftScroll);
-
 		start = System.currentTimeMillis();
 		allVols = LocalDB.getAllVolumes();
-		System.out.println("volume loading took " + (System.currentTimeMillis()-start));
+		System.out.println("volume loading took " + (System.currentTimeMillis() - start));
 
-		if(allVols == null){
+		if (allVols == null) {
 			allVols = new ArrayList<>();
 		}
 		volPreviews = new ArrayList<VolumePreview>();
 
-		for(Volume v: allVols){
+		for (Volume v : allVols) {
 			volPreviews.add(new VolumePreview(v, allIssues));
 		}
-
-
-		//		volListView = new ListView<>();
-		//		volListView.setPrefHeight(1000);
-		//		volObvRes = FXCollections.observableList(volPreviews);
-		//		volListView.setItems(volObvRes);
 
 		treeView = new TreeView<VolumePreview>(buildRoot());
 		treeView.setPrefWidth(500);
@@ -134,34 +117,35 @@ public class Main extends Application {
 
 			@Override
 			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
-				if(newValue instanceof VolumeCell){
-					if(!((VolumeCell) newValue).isFilled())
+				if (newValue instanceof VolumeCell) {
+					if (!((VolumeCell) newValue).isFilled())
 						try {
-                                                    ((VolumeCell) newValue).setIssues(allIssues);
-                                        } catch (JSONException ex) {
-                                            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
+							((VolumeCell) newValue).setIssues(allIssues);
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
 				} else {
 					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					if(ti.getValue().getmIssue() != null){
+					if (ti.getValue().getmIssue() != null) {
 						Issue issue = ti.getValue().getmIssue();
-                                            try {
-                                                layout.setRight(new DetailView(issue));
-                                            } catch (JSONException ex) {
-                                                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-					} else System.out.println("something went wrong loading issue");
+						try {
+							layout.setRight(new DetailView(issue));
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					} else
+						System.out.println("something went wrong loading issue");
 				}
 				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
 				newValue.setExpanded(!expanded);
 			}
 
 		});
-		
+
 		leftScroll = new ScrollPane();
 		leftScroll.setPrefHeight(1000);
 		leftScroll.setMaxHeight(1080);
-		//leftScroll.setContent(volListView);
+		// leftScroll.setContent(volListView);
 		leftScroll.setContent(treeView);
 		leftScroll.setPadding(new Insets(10));
 
@@ -174,29 +158,12 @@ public class Main extends Application {
 
 		addButton.setOnAction(e -> {
 			new AddComic(added);
-                    try {
-                        updateLeft();
-                    } catch (JSONException ex) {
-                        Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+			try {
+				updateLeft();
+			} catch (JSONException ex) {
+				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+			}
 		});
-
-		/*new AddComic(added);
-
-		for(Issue i: added){
-			LocalDB.addIssue(i);
-		}
-
-		VBox details = new VBox(10);
-		Vector<DetailView> vec = new Vector<>();
-
-		for(Issue i: added){
-			vec.add(new DetailView(i));
-		}
-
-		details.getChildren().addAll(vec);*/
-
-		//Scene scene = new Scene(new ScrollPane(details), 1900, 1050);
 
 		Scene scene = new Scene(layout, 1900, 1050);
 		window.setScene(scene);
@@ -204,51 +171,292 @@ public class Main extends Application {
 		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
 	}
 
-	public static void main(String[] args) {
-		//		org.json.JSONObject jo = CVrequest.getIssue("488852");
-		//		Volume test = new Volume(jo.getJSONObject("volume"));
-		//		LocalDB.addVolume(test);
-		//		new VolumePreview(test);
+	public static void updateLeft() throws JSONException {
+		for (Issue i : added) {
 
-
-		launch(args);
-		//System.out.println("to adjust");
-
-		//System.exit(0);
-	}
-
-	public static void updateLeft() throws JSONException{
-		for(Issue i: added){
-			LocalDB.addIssue(i);
-			allIssues.add(i);
-			int foundIndex = -1;
-			for(int j = 0; j < volPreviews.size(); j++){
-				if(volPreviews.get(j).getVolName().equals(i.getVolumeName())){
-					foundIndex = j;
-					volPreviews.get(j).update(allIssues);
+			if (!allIssues.contains(i)) {
+				LocalDB.addIssue(i);
+				allIssues.add(i);
+				int foundIndex = -1;
+				for (int j = 0; j < volPreviews.size(); j++) {
+					if (volPreviews.get(j).getVolName().equals(i.getVolumeName())) {
+						foundIndex = j;
+						volPreviews.get(j).update(allIssues);
+					}
 				}
-			}
 
-			if(foundIndex == -1){
-				volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
-			}
-		}
+				if (foundIndex == -1) {
+					volPreviews.add(new VolumePreview(i.getVolume(), allIssues));
+				}
+			} // end if
+
+		} // end for
 		treeView.setRoot(buildRoot());
-		added.clear();		
+		added.clear();
 	}
 
-	@SuppressWarnings("rawtypes")
-	public static TreeItem buildRoot(){
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static TreeItem buildRoot() {
 		TreeItem root = new TreeItem<VolumePreview>();
 
 		root.setValue("Volumes");
 		root.setExpanded(true);
-		for(VolumePreview vp: volPreviews){
-			//vp.update(allIssues);
-			TreeItem temp = new VolumeCell(vp);
+		for (VolumePreview volumePreview : volPreviews) {
+			// vp.update(allIssues);
+			TreeItem temp = new VolumeCell(volumePreview);
 			root.getChildren().add(temp);
 		}
 		return root;
 	}
+
+
+	
+	//--------------------------------------
+	
+	@Override
+    public void start(Stage primaryStage) {
+
+        stage = primaryStage;
+        //primaryStage.setTitle("Hello World!");
+
+        setDefaultScene();
+
+        setScene2();
+
+        //create MenuBar
+        MenuBar menuBar = createMenuBar();
+        // bind MenuBar's with property and the Stage's
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+
+        stage.setScene(defaultScene);
+        stage.show();
+    }
+
+//    Button scene1Button, scene2Button;
+//    public void ButtonClicked(ActionEvent e) {
+//        if (e.getSource() == scene1Button) {
+//            stage.setScene(scene2);
+//        } else {
+//            stage.setScene(defaultScene);
+//        }
+//    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    public void setDefaultScene() {
+
+        BorderPane root = new BorderPane();
+
+        MenuBar menuBar = createMenuBar();
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        root.setTop(menuBar);
+
+        Label label = new Label("Default Scene");
+
+        FlowPane flowPane = new FlowPane();
+        flowPane.setVgap(10);
+        //set background color of each Pane
+        flowPane.setStyle("-fx-padding: 10px;");
+        //add everything to panes
+        flowPane.getChildren().addAll(label);
+
+        root.setCenter(flowPane);
+
+        //root.getChildren().addAll(root, flowPane);
+        //make 2 scenes from 2 panes
+        defaultScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+
+    public void setScene2() {
+
+        BorderPane root = new BorderPane();
+
+        MenuBar menuBar = createMenuBar();
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        root.setTop(menuBar);
+
+        Label label = new Label("Scene 2");
+
+        FlowPane flowpane = new FlowPane();
+        flowpane.setVgap(10);
+        flowpane.setStyle("-fx-background-color: red;-fx-padding: 10px;");
+        flowpane.getChildren().addAll(label);
+
+        root.setCenter(flowpane);
+
+        scene2 = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+
+    public void setSearchSceneByVolume() {
+
+        BorderPane root = new BorderPane();
+
+        MenuBar menuBar = createMenuBar();
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        root.setTop(menuBar);
+
+        Label label = new Label("Search Scene By Volume");
+
+        FlowPane flowpane = new FlowPane();
+        flowpane.setVgap(10);
+        flowpane.setStyle("-fx-padding: 10px;");
+        flowpane.getChildren().addAll(label);
+
+        root.setCenter(flowpane);
+
+        searchSceneByVolume = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+
+    public void setSearchSceneByIssue() {
+
+        BorderPane root = new BorderPane();
+
+        MenuBar menuBar = createMenuBar();
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        root.setTop(menuBar);
+
+        Label label = new Label("Search Scene By Issue");
+
+        FlowPane flowpane = new FlowPane();
+        flowpane.setVgap(10);
+        flowpane.setStyle("-fx-padding: 10px;");
+        flowpane.getChildren().addAll(label);
+
+        root.setCenter(flowpane);
+
+        searchSceneByIssue = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+    }
+
+    private Menu createMenuSearch() {
+        // Cameras menu - camera 1, camera 2
+        Menu tools = new Menu("Search");
+
+        MenuItem searchByIssueNameMenuItem = new MenuItem("Search By Issue Name");
+        searchByIssueNameMenuItem.setMnemonicParsing(true);
+        searchByIssueNameMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN));
+        searchByIssueNameMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                setSearchSceneByIssue();
+                stage.setScene(searchSceneByIssue);
+            }
+        });
+
+        MenuItem searchByVolumeNameMenuItem = new MenuItem("Search By Volume Name");
+        searchByVolumeNameMenuItem.setMnemonicParsing(true);
+        searchByVolumeNameMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN));
+        searchByVolumeNameMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                setSearchSceneByVolume();
+                stage.setScene(searchSceneByVolume);
+            }
+        });
+
+        tools.getItems().addAll(searchByIssueNameMenuItem, searchByVolumeNameMenuItem);
+
+        return tools;
+    }
+
+    private Menu createMenuAdd() {
+        // Cameras menu - camera 1, camera 2
+        Menu tools = new Menu("Add");
+
+        MenuItem addIssueMenuItem = new MenuItem("Search By Issue Name");
+        addIssueMenuItem.setMnemonicParsing(true);
+        addIssueMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN));
+        addIssueMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                debug("add issue here...");
+            }
+        });
+
+        MenuItem addVolumeMenuItem = new MenuItem("Search By Volume Name");
+        addVolumeMenuItem.setMnemonicParsing(true);
+        addVolumeMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        addVolumeMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                debug("add volume Name here...");
+            }
+        });
+
+        tools.getItems().addAll(addIssueMenuItem, addVolumeMenuItem);
+
+        return tools;
+    }
+
+    private Menu createMenuFile() {
+        // add MenuItem object to MenuBar
+        // File menu - new, save, exit
+        Menu menu = new Menu("File");
+
+        MenuItem menuItemLoadAllComicBooks = new MenuItem("Load All Comic Books");
+        menuItemLoadAllComicBooks.setMnemonicParsing(true);
+        menuItemLoadAllComicBooks.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.SHORTCUT_DOWN));
+
+        MenuItem menuItemSave = new MenuItem("Save");
+        menuItemSave.setMnemonicParsing(true);
+        menuItemSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN));
+
+        MenuItem exitMenuItem = new MenuItem("Exit");
+        exitMenuItem.setMnemonicParsing(true);
+        exitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.SHORTCUT_DOWN));
+        exitMenuItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                Platform.exit();
+            }
+        });
+
+        menu.getItems().add(0, menuItemLoadAllComicBooks);
+        menu.getItems().add(1, menuItemSave);
+        menu.getItems().add(2, exitMenuItem);
+
+        return menu;
+    }
+
+    private Menu createMenuHelp() {
+        // add MenuItem object to MenuBar
+        // File menu - new, save, exit
+        Menu menu = new Menu("Help");
+
+        MenuItem menuItemLoadAbout = new MenuItem("About");
+        menuItemLoadAbout.setMnemonicParsing(true);
+        menuItemLoadAbout.setAccelerator(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN));
+
+        MenuItem menuItemHelp = new MenuItem("Help");
+        menuItemHelp.setMnemonicParsing(true);
+        menuItemHelp.setAccelerator(new KeyCodeCombination(KeyCode.H, KeyCombination.SHORTCUT_DOWN));
+
+        menu.getItems().addAll(menuItemLoadAbout, menuItemHelp);
+
+        return menu;
+    }
+
+    private MenuBar createMenuBar() {
+        MenuBar menuBar = new MenuBar();
+
+        Menu menu = createMenuFile();
+        menuBar.getMenus().add(menu);
+
+        Menu add = createMenuAdd();
+        menuBar.getMenus().add(add);
+
+        Menu search = createMenuSearch();
+        menuBar.getMenus().add(search);
+
+        Menu help = createMenuHelp();
+        menuBar.getMenus().add(help);
+        return menuBar;
+    }
+
+    private static void debug(String input) {
+        System.out.println(input);
+    }
+
 
 }
