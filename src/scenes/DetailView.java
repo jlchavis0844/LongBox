@@ -30,8 +30,11 @@ public class DetailView extends BorderPane{
 		Label nameLbl = new Label("name");
 		Label issueNumLbl = new Label("Issue Number#");
 		Label cDateLbl = new Label("Cover Date");
-		Label volNameLbl = new Label("Volume");
+		Label volNameLbl = new Label("Volume Name");
 		Label writerLbl = new Label("Writers");
+		Label volIDLbl = new Label("Volume ID");
+		Label issueIDLbl = new Label("Issue ID");
+		Label desLbl = new Label("Desciption");
 		//left.getChildren().addAll(volNameLbl,issueNumLbl,nameLbl,cDateLbl, writerLbl);
 		
 		//VBox center = new VBox();
@@ -40,6 +43,9 @@ public class DetailView extends BorderPane{
 		TextField cDate = new TextField(issue.getCoverDate());
 		TextField volName = new TextField(issue.getVolumeName());
 		TextField writer = new TextField(issue.getPerson("writer"));
+		TextField volID = new TextField(issue.getVolumeID());
+		TextField issueID = new TextField(issue.getID());
+		TextField des = new TextField(issue.getDescription());
 		writer.setEditable(false);
 		//center.getChildren().addAll(volName,issueNum,name,cDate, writer);
 
@@ -52,11 +58,11 @@ public class DetailView extends BorderPane{
 		grid.add(volNameLbl, 0, 1);
 		grid.add(volName, 1, 1);
 		
-		grid.add(issueNumLbl, 0, 2);
-		grid.add(issueNum, 1, 2);
+		grid.add(volIDLbl, 0, 2);
+		grid.add(volID, 1, 2);
 		
-		grid.add(cDateLbl, 0, 3);
-		grid.add(cDate, 1, 3);
+		grid.add(issueIDLbl, 0, 3);
+		grid.add(issueID, 1, 3);
 		
 		grid.add(nameLbl, 0, 4);
 		grid.add(name, 1, 4);
@@ -67,6 +73,15 @@ public class DetailView extends BorderPane{
 		
 		grid.add(new Label("artist"), 0, 6);
 		grid.add(new TextField(issue.getPerson("art")), 1, 6);
+		
+		grid.add(cDateLbl, 0, 7);
+		grid.add(cDate, 1, 7);
+		
+		grid.add(issueNumLbl, 0, 8);
+		grid.add(issueNum, 1, 8);
+		
+		grid.add(desLbl, 0, 9);
+		grid.add(des, 1, 9);
 		
 		WebView descBox = new WebView();
 		descBox.setMinHeight(50);
@@ -99,11 +114,12 @@ public class DetailView extends BorderPane{
 		editButton = new Button("Save Changes");
 		editButton.setVisible(true);
 		editButton.setOnAction(e -> {
-			LocalDB.update(issue.getID(), "name", name.getSelectedText().toString(), 0);
-			LocalDB.update(issue.getID(), "issue_number", issueNum.getSelectedText().toString(), 0);
-			LocalDB.update(issue.getID(), "cover_date", cDate.getSelectedText().toString(), 0);
-			LocalDB.update(issue.getID(), "volume", volName.getSelectedText().toString(), 0);
+			LocalDB.update(issue.getID(), "name", name.getSelectedText().toString(), LocalDB.ISSUE);
+			LocalDB.update(issue.getID(), "issue_number", issueNum.getSelectedText().toString(), LocalDB.ISSUE);
+			LocalDB.update(issue.getID(), "cover_date", cDate.getSelectedText().toString(), LocalDB.ISSUE);
+			LocalDB.update(issue.getID(), "volume", volName.getSelectedText().toString(), LocalDB.ISSUE);
+			LocalDB.update(issue.getID(), "description", des.getSelectedText().toString(), LocalDB.ISSUE);
 		});
-		grid.add(editButton, 0, 7);
+		grid.add(editButton, 0, 10);
 	}
 }
