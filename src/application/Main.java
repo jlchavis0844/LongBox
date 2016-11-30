@@ -51,7 +51,6 @@ import javafx.scene.input.KeyCombination;
 public class Main extends Application {
 	@SuppressWarnings("rawtypes")
 	private Stage window;
-	private BorderPane layout;
 	private ListView<VolResult> list;
 	private ListView<IssueResult> issueList;
 	private static ArrayList<Issue> added;
@@ -70,13 +69,12 @@ public class Main extends Application {
 
 	Stage stage;
 	Scene defaultScene, scene2;
-	Scene searchSceneByIssue, searchSceneByVolume;
+	Scene searchSceneByIssue, searchSceneByVolume, loadScene;
 
 	public static final int SCREEN_WIDTH = (int) Screen.getPrimary().getVisualBounds().getWidth();
 	public static final int SCREEN_HEIGHT = (int) Screen.getPrimary().getVisualBounds().getHeight();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-
 	// public void genericStart(Stage primaryStage) throws Exception {
 	public void genericStart(Stage primaryStage) throws Exception {
 		window = primaryStage;
@@ -214,7 +212,7 @@ public class Main extends Application {
 	//--------------------------------------
 	
 	@Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws Exception {
 
         stage = primaryStage;
         //primaryStage.setTitle("Hello World!");
@@ -222,13 +220,16 @@ public class Main extends Application {
         setDefaultScene();
 
         setScene2();
+        
+        setLoadScene();
 
         //create MenuBar
         MenuBar menuBar = createMenuBar();
         // bind MenuBar's with property and the Stage's
         menuBar.prefWidthProperty().bind(stage.widthProperty());
 
-        stage.setScene(defaultScene);
+        //stage.setScene(defaultScene);
+        stage.setScene(loadScene);
         stage.show();
     }
 
@@ -457,6 +458,201 @@ public class Main extends Application {
     private static void debug(String input) {
         System.out.println(input);
     }
+    
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	// public void genericStart(Stage primaryStage) throws Exception {
+	public void setLoadScene() throws Exception {
+		//window = primaryStage;
+		//window.setTitle("Digital Long Box");
+		BorderPane root = new BorderPane();
+		
+        MenuBar menuBar = createMenuBar();
+        menuBar.prefWidthProperty().bind(stage.widthProperty());
+        root.setTop(menuBar);
+
+		added = new ArrayList<Issue>();
+
+		System.out.println("getting all issues");
+		Long start;
+		start = System.currentTimeMillis();
+		allIssues = LocalDB.getAllIssues();
+		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
+
+		if (allIssues == null) {
+			System.out.println("no issues found ");
+			allIssues = new ArrayList<Issue>();
+		}
+
+		start = System.currentTimeMillis();
+		allVols = LocalDB.getAllVolumes();
+		System.out.println("volume loading took " + (System.currentTimeMillis() - start));
+
+		if (allVols == null) {
+			allVols = new ArrayList<>();
+		}
+		volPreviews = new ArrayList<VolumePreview>();
+
+		for (Volume v : allVols) {
+			volPreviews.add(new VolumePreview(v, allIssues));
+		}
+
+		treeView = new TreeView<VolumePreview>(buildRoot());
+		treeView.setPrefWidth(500);
+		treeView.setPrefHeight(950);
+
+		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem>() {
+
+			@Override
+			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
+				if (newValue instanceof VolumeCell) {
+					if (!((VolumeCell) newValue).isFilled())
+						try {
+							((VolumeCell) newValue).setIssues(allIssues);
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+				} else {
+					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
+					if (ti.getValue().getmIssue() != null) {
+						Issue issue = ti.getValue().getmIssue();
+						try {
+							root.setRight(new DetailView(issue));
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					} else
+						System.out.println("something went wrong loading issue");
+				}
+				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
+				newValue.setExpanded(!expanded);
+			}
+
+		});
+
+		leftScroll = new ScrollPane();
+		leftScroll.setPrefHeight(1000);
+		leftScroll.setMaxHeight(1080);
+		// leftScroll.setContent(volListView);
+		leftScroll.setContent(treeView);
+		leftScroll.setPadding(new Insets(10));
+
+		root.setLeft(leftScroll);
+		hbox = new HBox();
+		hbox.setPadding(new Insets(10));
+		addButton = new Button("Click here to add");
+		hbox.getChildren().add(addButton);
+		root.setBottom(hbox);
+
+		addButton.setOnAction(e -> {
+			new AddComic(added);
+			try {
+				updateLeft();
+			} catch (JSONException ex) {
+				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		});
+
+		loadScene = new Scene(root, 1900, 1050);
+		//window.setScene(scene);
+		//window.show();
+		//System.out.println("Done loading after " + (System.currentTimeMillis() - start));
+	}
 
 
 }
+
+/*
+ // public void genericStart(Stage primaryStage) throws Exception {
+	public void genericStart(Stage primaryStage) throws Exception {
+		window = primaryStage;
+		window.setTitle("Digital Long Box");
+		layout = new BorderPane();
+
+		added = new ArrayList<Issue>();
+
+		System.out.println("getting all issues");
+		Long start;
+		start = System.currentTimeMillis();
+		allIssues = LocalDB.getAllIssues();
+		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
+
+		if (allIssues == null) {
+			System.out.println("no issues found ");
+			allIssues = new ArrayList<Issue>();
+		}
+
+		start = System.currentTimeMillis();
+		allVols = LocalDB.getAllVolumes();
+		System.out.println("volume loading took " + (System.currentTimeMillis() - start));
+
+		if (allVols == null) {
+			allVols = new ArrayList<>();
+		}
+		volPreviews = new ArrayList<VolumePreview>();
+
+		for (Volume v : allVols) {
+			volPreviews.add(new VolumePreview(v, allIssues));
+		}
+
+		treeView = new TreeView<VolumePreview>(buildRoot());
+		treeView.setPrefWidth(500);
+		treeView.setPrefHeight(950);
+
+		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem>() {
+
+			@Override
+			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
+				if (newValue instanceof VolumeCell) {
+					if (!((VolumeCell) newValue).isFilled())
+						try {
+							((VolumeCell) newValue).setIssues(allIssues);
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+				} else {
+					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
+					if (ti.getValue().getmIssue() != null) {
+						Issue issue = ti.getValue().getmIssue();
+						try {
+							layout.setRight(new DetailView(issue));
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					} else
+						System.out.println("something went wrong loading issue");
+				}
+				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
+				newValue.setExpanded(!expanded);
+			}
+
+		});
+
+		leftScroll = new ScrollPane();
+		leftScroll.setPrefHeight(1000);
+		leftScroll.setMaxHeight(1080);
+		// leftScroll.setContent(volListView);
+		leftScroll.setContent(treeView);
+		leftScroll.setPadding(new Insets(10));
+
+		layout.setLeft(leftScroll);
+		hbox = new HBox();
+		hbox.setPadding(new Insets(10));
+		addButton = new Button("Click here to add");
+		hbox.getChildren().add(addButton);
+		layout.setTop(hbox);
+
+		addButton.setOnAction(e -> {
+			new AddComic(added);
+			try {
+				updateLeft();
+			} catch (JSONException ex) {
+				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+			}
+		});
+
+		Scene scene = new Scene(layout, 1900, 1050);
+		window.setScene(scene);
+		window.show();
+		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
+	}
+ */
