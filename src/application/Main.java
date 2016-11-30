@@ -1,5 +1,6 @@
 package application;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -66,6 +67,7 @@ public class Main extends Application {
 	private HBox hbox;
 	private Button addButton;
 	private static TreeView treeView;
+	private static ArrayList<Issue> searchResultIssues;
 
 	Stage stage;
 	Scene defaultScene, scene2;
@@ -298,36 +300,178 @@ public class Main extends Application {
         menuBar.prefWidthProperty().bind(stage.widthProperty());
         root.setTop(menuBar);
 
-        Label label = new Label("Search Scene By Volume");
+        //-----------------------add code below this line-------------------
+        
+        GridPane gridpane = new GridPane();
+        gridpane.setPadding(new Insets(5));
+        gridpane.setHgap(5);
+        gridpane.setVgap(5);
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(10);
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(80);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(10);
+        gridpane.getColumnConstraints().addAll(column1, column2,column3);
+	
+        Label label = new Label("Search By Volume");
+        Label inputLabel = new Label("Type In Keyword");
+        TextField inputTextField = new TextField();
+        Button searchButton = new Button("Search");
+        
+        searchButton.setOnAction(new EventHandler<ActionEvent>() {
 
-        FlowPane flowpane = new FlowPane();
-        flowpane.setVgap(10);
-        flowpane.setStyle("-fx-padding: 10px;");
-        flowpane.getChildren().addAll(label);
+            @Override
+            public void handle(ActionEvent e) {
+                
+            	try {
+					searchResultIssues = LocalDB.searchIssueByName(inputTextField.getText());
+					debug("input string is " + inputTextField.getText());
+					debug("size of result is " + searchResultIssues.size());
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	debug("input is " + inputTextField.getText());
+                
+            }
+        });
+		
+		
+        
+        gridpane.add(label, 0, 0);
+        gridpane.add(inputLabel, 0, 1);
+        gridpane.add(inputTextField, 1, 1);
+        gridpane.add(searchButton, 2, 1);
 
-        root.setCenter(flowpane);
+        root.setCenter(gridpane);
 
         searchSceneByVolume = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-    public void setSearchSceneByIssue() {
-
-        BorderPane root = new BorderPane();
+    public void setSearchSceneByIssue() throws JSONException, SQLException {
+    	
+        BorderPane rootBorderPane = new BorderPane();
 
         MenuBar menuBar = createMenuBar();
         menuBar.prefWidthProperty().bind(stage.widthProperty());
-        root.setTop(menuBar);
+        rootBorderPane.setTop(menuBar);
 
-        Label label = new Label("Search Scene By Issue");
+        //-----------------------add code below this line-------------------
+        
+        GridPane gridpane = new GridPane();
+        gridpane.setPadding(new Insets(5));
+        gridpane.setHgap(5);
+        gridpane.setVgap(5);
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(10);
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(80);
+        ColumnConstraints column3 = new ColumnConstraints();
+        column3.setPercentWidth(10);
+        gridpane.getColumnConstraints().addAll(column1, column2,column3);
+	
+        Label label = new Label("Search By Issue");
+        Label inputLabel = new Label("Type In Keyword");
+        TextField inputTextField = new TextField();
+        Button searchButton = new Button("Search");
+        
+        searchButton.setOnAction(new EventHandler<ActionEvent>() {
 
-        FlowPane flowpane = new FlowPane();
-        flowpane.setVgap(10);
-        flowpane.setStyle("-fx-padding: 10px;");
-        flowpane.getChildren().addAll(label);
+            @Override
+            public void handle(ActionEvent e) {
+                
+            	try {
+					searchResultIssues = LocalDB.searchIssueByName(inputTextField.getText());
+					debug("input string is " + inputTextField.getText());
+					debug("size of result is " + searchResultIssues.size());
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	debug("input is " + inputTextField.getText());
+                
+            }
+        });
+		
+		
+        
+        gridpane.add(label, 0, 0);
+        gridpane.add(inputLabel, 0, 1);
+        gridpane.add(inputTextField, 1, 1);
+        gridpane.add(searchButton, 2, 1);
+        
+        /*
+        volPreviews = new ArrayList<VolumePreview>();
 
-        root.setCenter(flowpane);
+		for (Volume v : allVols) {
+			volPreviews.add(new VolumePreview(v, searchResultIssues));
+		}
 
-        searchSceneByIssue = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
+		treeView = new TreeView<VolumePreview>(buildRoot());
+		treeView.setPrefWidth(500);
+		treeView.setPrefHeight(950);
+
+		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem>() {
+
+			@Override
+			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
+				if (newValue instanceof VolumeCell) {
+					if (!((VolumeCell) newValue).isFilled())
+						try {
+							((VolumeCell) newValue).setIssues(allIssues);
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+				} else {
+					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
+					if (ti.getValue().getmIssue() != null) {
+						Issue issue = ti.getValue().getmIssue();
+						try {
+							root.setRight(new DetailView(issue));
+						} catch (JSONException ex) {
+							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+						}
+					} else
+						System.out.println("something went wrong loading issue");
+				}
+				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
+				newValue.setExpanded(!expanded);
+			}
+
+		});
+
+		leftScroll = new ScrollPane();
+		leftScroll.setPrefHeight(1000);
+		leftScroll.setMaxHeight(1080);
+		// leftScroll.setContent(volListView);
+		leftScroll.setContent(treeView);
+		leftScroll.setPadding(new Insets(10));
+		
+		BorderPane viewBorderPane = new BorderPane();
+		viewBorderPane.setLeft(leftScroll);
+		viewBorderPane.setCenter(treeView);
+        */
+		//----------------------------------------------
+        
+        VBox vb = new VBox();
+        vb.setSpacing(5);
+        //vb.getChildren().add(gridpane);
+        //viewBorderPane);
+        
+        //root.setCenter(vb);
+        rootBorderPane.setCenter(gridpane);
+        
+        //--------------	
+
+
+        searchSceneByIssue = new Scene(rootBorderPane, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     private Menu createMenuSearch() {
@@ -340,7 +484,15 @@ public class Main extends Application {
         searchByIssueNameMenuItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                setSearchSceneByIssue();
+				try {
+					setSearchSceneByIssue();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
                 stage.setScene(searchSceneByIssue);
             }
         });
@@ -398,6 +550,12 @@ public class Main extends Application {
         MenuItem menuItemLoadAllComicBooks = new MenuItem("Load All Comic Books");
         menuItemLoadAllComicBooks.setMnemonicParsing(true);
         menuItemLoadAllComicBooks.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.SHORTCUT_DOWN));
+        menuItemLoadAllComicBooks.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+            	stage.setScene(loadScene);
+            }
+        });
 
         MenuItem menuItemSave = new MenuItem("Save");
         menuItemSave.setMnemonicParsing(true);
@@ -464,11 +622,11 @@ public class Main extends Application {
 	public void setLoadScene() throws Exception {
 		//window = primaryStage;
 		//window.setTitle("Digital Long Box");
-		BorderPane root = new BorderPane();
+		BorderPane rootBorderPane = new BorderPane();
 		
         MenuBar menuBar = createMenuBar();
         menuBar.prefWidthProperty().bind(stage.widthProperty());
-        root.setTop(menuBar);
+        rootBorderPane.setTop(menuBar);
 
 		added = new ArrayList<Issue>();
 
@@ -516,7 +674,7 @@ public class Main extends Application {
 					if (ti.getValue().getmIssue() != null) {
 						Issue issue = ti.getValue().getmIssue();
 						try {
-							root.setRight(new DetailView(issue));
+							rootBorderPane.setRight(new DetailView(issue));
 						} catch (JSONException ex) {
 							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
 						}
@@ -536,12 +694,12 @@ public class Main extends Application {
 		leftScroll.setContent(treeView);
 		leftScroll.setPadding(new Insets(10));
 
-		root.setLeft(leftScroll);
+		rootBorderPane.setLeft(leftScroll);
 		hbox = new HBox();
 		hbox.setPadding(new Insets(10));
 		addButton = new Button("Click here to add");
 		hbox.getChildren().add(addButton);
-		root.setBottom(hbox);
+		rootBorderPane.setBottom(hbox);
 
 		addButton.setOnAction(e -> {
 			new AddComic(added);
@@ -552,107 +710,10 @@ public class Main extends Application {
 			}
 		});
 
-		loadScene = new Scene(root, 1900, 1050);
+		loadScene = new Scene(rootBorderPane, 1900, 1050);
 		//window.setScene(scene);
 		//window.show();
 		//System.out.println("Done loading after " + (System.currentTimeMillis() - start));
 	}
 
-
 }
-
-/*
- // public void genericStart(Stage primaryStage) throws Exception {
-	public void genericStart(Stage primaryStage) throws Exception {
-		window = primaryStage;
-		window.setTitle("Digital Long Box");
-		layout = new BorderPane();
-
-		added = new ArrayList<Issue>();
-
-		System.out.println("getting all issues");
-		Long start;
-		start = System.currentTimeMillis();
-		allIssues = LocalDB.getAllIssues();
-		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
-
-		if (allIssues == null) {
-			System.out.println("no issues found ");
-			allIssues = new ArrayList<Issue>();
-		}
-
-		start = System.currentTimeMillis();
-		allVols = LocalDB.getAllVolumes();
-		System.out.println("volume loading took " + (System.currentTimeMillis() - start));
-
-		if (allVols == null) {
-			allVols = new ArrayList<>();
-		}
-		volPreviews = new ArrayList<VolumePreview>();
-
-		for (Volume v : allVols) {
-			volPreviews.add(new VolumePreview(v, allIssues));
-		}
-
-		treeView = new TreeView<VolumePreview>(buildRoot());
-		treeView.setPrefWidth(500);
-		treeView.setPrefHeight(950);
-
-		treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem>() {
-
-			@Override
-			public void changed(ObservableValue<? extends TreeItem> observable, TreeItem oldValue, TreeItem newValue) {
-				if (newValue instanceof VolumeCell) {
-					if (!((VolumeCell) newValue).isFilled())
-						try {
-							((VolumeCell) newValue).setIssues(allIssues);
-						} catch (JSONException ex) {
-							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-						}
-				} else {
-					TreeItem<IssuePreview> ti = (TreeItem<IssuePreview>) treeView.getSelectionModel().getSelectedItem();
-					if (ti.getValue().getmIssue() != null) {
-						Issue issue = ti.getValue().getmIssue();
-						try {
-							layout.setRight(new DetailView(issue));
-						} catch (JSONException ex) {
-							Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-						}
-					} else
-						System.out.println("something went wrong loading issue");
-				}
-				boolean expanded = ((TreeItem) treeView.getSelectionModel().getSelectedItem()).isExpanded();
-				newValue.setExpanded(!expanded);
-			}
-
-		});
-
-		leftScroll = new ScrollPane();
-		leftScroll.setPrefHeight(1000);
-		leftScroll.setMaxHeight(1080);
-		// leftScroll.setContent(volListView);
-		leftScroll.setContent(treeView);
-		leftScroll.setPadding(new Insets(10));
-
-		layout.setLeft(leftScroll);
-		hbox = new HBox();
-		hbox.setPadding(new Insets(10));
-		addButton = new Button("Click here to add");
-		hbox.getChildren().add(addButton);
-		layout.setTop(hbox);
-
-		addButton.setOnAction(e -> {
-			new AddComic(added);
-			try {
-				updateLeft();
-			} catch (JSONException ex) {
-				Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		});
-
-		Scene scene = new Scene(layout, 1900, 1050);
-		window.setScene(scene);
-		window.show();
-		System.out.println("Done loading after " + (System.currentTimeMillis() - start));
-	}
- */
