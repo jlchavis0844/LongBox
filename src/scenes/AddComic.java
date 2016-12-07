@@ -44,6 +44,8 @@ public class AddComic {
 
 	public AddComic(List<Issue> added) {
 		pb = new ProgressBar(0.0);
+		pb.setPrefWidth(200);
+		pb.setVisible(false);
 		addList = added;
 		window = new Stage();
 		window.setTitle("Add Comics!");
@@ -127,6 +129,7 @@ public class AddComic {
 
 		srchButton.setOnAction(e -> {
 			if (!input.getText().equals("")) {
+				pb.setVisible(true);
 				addButton.setDisable(true);
 				scPane.setContent(list);
 				System.out.println(input.getText());
@@ -195,6 +198,9 @@ public class AddComic {
 						double prog = added / vols.size();
 						System.out.println("progress = " + added + " / " + (double) vols.size() + " = " + prog);
 						pb.setProgress(prog);
+						if(prog == 1){
+							pb.setVisible(false);
+						}
 					});
 				}
 

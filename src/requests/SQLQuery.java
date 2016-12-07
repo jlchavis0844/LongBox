@@ -1,7 +1,10 @@
 package requests;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -192,9 +195,12 @@ public class SQLQuery {
 		String info[] = new String[4];
 
 		String SQLinfo = "SELECT * FROM login";
-		ResultSet rs = LocalDB.executeQuery(SQLinfo);
 
 		try {
+			Connection tempConn = DriverManager.getConnection("jdbc:sqlite:./DigLongBox.db");
+			Statement tempStat = tempConn.createStatement();
+			ResultSet rs = tempStat.executeQuery(SQLinfo);
+
 			rs.next();
 			if (!rs.isClosed()) {
 				info[0] = rs.getString("user");
@@ -206,6 +212,10 @@ public class SQLQuery {
 			for (String s : info) {
 				System.out.print(s + "\t");
 			}
+			
+			rs.close();
+			tempStat.close();
+			tempConn.close();
 			System.out.println();
 
 		} catch (SQLException e) {
@@ -271,7 +281,8 @@ public class SQLQuery {
 			retVal = Integer.valueOf(response.getBody()) == id.size();
 			if (retVal == false) {
 				System.out.println("Failed to delete all issues, remote removed: " + response.getBody());
-			} else System.out.println("Deleted " + Integer.valueOf(response.getBody()) + " issues");
+			} else
+				System.out.println("Deleted " + Integer.valueOf(response.getBody()) + " issues");
 
 		} catch (UnirestException e) {
 			// TODO Auto-generated catch block
