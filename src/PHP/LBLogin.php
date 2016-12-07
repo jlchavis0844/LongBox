@@ -1,12 +1,17 @@
 <?php
-
+header('Content-Type: json');
 //read json body
 $post = file_get_contents('php://input');
-//read variables from body
+//echo("dumping post");
+//var_dump($post);
+// var_dump($_POST);
+//echo("dumping data");
 $data = json_decode($post);
+//var_dump($data);
 $lbUser = $data->user;//user
 $lbPass = $data->password;//password
-
+//echo("user: " . $lbUser);
+//echo("password: " . $lbPass);
 // SQL server declerations
 $host = "76.94.123.147";//server IP
 $port = 4910;//mySQL port
@@ -29,9 +34,8 @@ if(!$results){//on fail
 
 //save results
 $row = mysqli_fetch_array($results, MYSQLI_BOTH);
+//var_dump($row);
 if($row[0] == 0){
-	echo json_encode("false");
-} else echo json_encode("true");
-
-
+	echo json_encode(false);
+} else echo json_encode(true);
 ?>

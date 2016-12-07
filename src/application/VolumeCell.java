@@ -6,7 +6,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
+import localDB.LocalDB;
 import model.Issue;
+import model.Volume;
 import scenes.IssuePreview;
 import scenes.VolumePreview;
 import javafx.event.ActionEvent;
@@ -19,7 +21,7 @@ public class VolumeCell extends TreeItem {
 	boolean filled = false;
 
 	/**
-	 * 
+	 * Holds volume preview in the collections treeview
 	 * @param vPre
 	 */
 	
@@ -43,21 +45,25 @@ public class VolumeCell extends TreeItem {
 	 * @param allIssues
 	 *            - ArrayList of all the issues
 	 */
-	public synchronized void setIssues(ArrayList<Issue> allIssues) {
-		for (Issue i : allIssues) {
-			if (i.getVolumeID().equals(vp.getVolume().getID())) {
-//				// System.out.println("Adding " + i);
-//				// Had to insert this inorder to prevent multiple threads
-//				// writing to children
-//				Platform.runLater(new Runnable() {
-//					public void run() {
-//						getChildren().add(new TreeItem<IssuePreview>(new IssuePreview(i)));
-//					}
-//				});
-				getChildren().add(new TreeItem<IssuePreview>(new IssuePreview(i)));
+	public boolean setIssues(ArrayList<Issue> allIssues) {
+
+		ArrayList<Issue> volumeIssues = new ArrayList<>();
+		for(Issue i : allIssues){
+			if (i.getVolumeID().equals(vp.getVolume().getID())) {//check by volume ID
+				volumeIssues.add(i);
 			}
 		}
+		if(volumeIssues.isEmpty())
+			return false;
+		LocalDB.sortIssuesByIssueNum(volumeIssues, false);//sort the issues
+		
+		for(Issue i: volumeIssues){//add issues to the volume preview in the sorted order
+			//System.out.println("trying: " + i.getVolumeName() + " #" + i.getIssueNum());
+
+			getChildren().add(new TreeItem<IssuePreview>(new IssuePreview(i)));
+		}
 		filled = true;
+		return true;
 	}
 
 	/**
@@ -67,4 +73,21 @@ public class VolumeCell extends TreeItem {
 	public boolean isFilled() {
 		return filled;
 	}
+	
+	public String getVolumeName(){
+		return vp.getVolName();
+	}
+	
+	public String getVolumeID(){
+		return vp.getVolume().getID();
+	}
+	
+	public Volume getVolume(){
+		return vp.getVolume();
+	}
+	
+	public VolumePreview getVolPreview(){
+		return vp;
+	}
+
 }

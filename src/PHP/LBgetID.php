@@ -1,7 +1,7 @@
 <?php
 /**
-This PHP will return a jason with the field id_list that has an array of off id's
-of id's of comics that were entered AFTER the passed timeStamp;
+This PHP will return a json with the field id_list that has an array of off id's
+of id's of comics that were entered after the passed timeStamp;
 
 json body should contain the following:
 {

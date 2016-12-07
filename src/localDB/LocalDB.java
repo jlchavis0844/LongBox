@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import model.Issue;
 import model.Volume;
 import requests.CVImage;
+import requests.SQLQuery;
+import scenes.VolumePreview;
 
 /**
  * Operator Description Example = Checks if the values of two operands are equal
@@ -88,9 +90,16 @@ public class LocalDB {
 	private static String url = "jdbc:sqlite:./DigLongBox.db";
 	private static Connection conn;
 	private static Statement stat;
-	public static int ISSUE = 0;
-	public static int VOLUME = 1;
+	public final static int ISSUE = 0;
+	public final static int VOLUME = 1;
 
+	/**
+	 * Inserts issue along with corresponding volume, if needed and fetches aand
+	 * stores images
+	 * 
+	 * @param issue
+	 * @return
+	 */
 	public static boolean addIssue(Issue issue) {
 		try {
 			conn = DriverManager.getConnection(url);
@@ -173,6 +182,13 @@ public class LocalDB {
 		return true;
 	}
 
+	/**
+	 * AAdds volume and corresponding data such aas pictures to the database
+	 * 
+	 * @param vol
+	 *            Volume object to be added to the database
+	 * @return true if the volume was added, false otherwise
+	 */
 	public static boolean addVolume(Volume vol) {
 		if (exists(vol.getID(), VOLUME))
 			return false;
@@ -250,6 +266,15 @@ public class LocalDB {
 		return true;
 	}
 
+	/**
+	 * Checks to see if the given ID is in the data base for given object
+	 * 
+	 * @param id
+	 *            volume/issue id
+	 * @param type
+	 *            LocalDB.ISSUE or LocalDB.VOLUME
+	 * @return true or false
+	 */
 	public static boolean exists(String id, int type) {
 		int count = 0;
 		try {
@@ -395,6 +420,40 @@ public class LocalDB {
 		return null;
 	}
 
+	/**
+	 * Searches all json fields of either volume or issue to see if value exists
+	 * 
+	 * @param key
+	 *            Term to search for
+	 * @param type
+	 *            VOLUME or ISSUE
+	 * @return true or false on whether it was found
+	 */
+	public static boolean searchAllFields(String key, int type) {
+		boolean retVal = false;
+		try {
+			conn = DriverManager.getConnection(url);
+			stat = conn.createStatement();
+			String table = (type == 0) ? "issue" : "volume";
+			String query = "SELECT COUNT(*) FROM " + table + " WHERE JSON LIKE ?;";
+
+			PreparedStatement pre = conn.prepareStatement(query);
+			pre.setString(1, "%" + key + "%");
+			ResultSet rs = pre.executeQuery();
+			rs.next();
+			retVal = (rs.getInt(1) > 0);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retVal;
+	}
+
+	/**
+	 * Builds and returns an unsorted list of issues
+	 * 
+	 * @return ArrayList<Issue>
+	 */
 	public static ArrayList<Issue> getAllIssues() {
 		ArrayList<Issue> iList = new ArrayList<Issue>();
 		try {
@@ -405,7 +464,6 @@ public class LocalDB {
 			PreparedStatement pre = conn.prepareStatement(sql);
 
 			ResultSet rs = pre.executeQuery();
-			ResultSetMetaData meta = rs.getMetaData();
 
 			String val = "";
 			JSONObject tObj = null;
@@ -430,6 +488,11 @@ public class LocalDB {
 		return iList;
 	}
 
+	/**
+	 * Returns an ArrayList<Volume> of all volumes in the local database
+	 * 
+	 * @return ArrayList<Volume>
+	 */
 	public static ArrayList<Volume> getAllVolumes() {
 		ArrayList<Volume> iList = new ArrayList<Volume>();
 		try {
@@ -489,9 +552,30 @@ public class LocalDB {
 				return result * ((order) ? 1 : -1);
 			}
 		};
-
 		Collections.sort(input, comparatorIssue);
+	}
 
+	/**
+	 * Sort volume previews by name
+	 * 
+	 * @param input
+	 *            ArrayList<VolumePreviews> list to be sorted
+	 * @param order
+	 *            True for Ascending
+	 * @throws JSONException
+	 */
+	public static void sortVolumePreviews(List<VolumePreview> volPreviews, boolean order) {
+		final Comparator<VolumePreview> compVP = new Comparator<VolumePreview>() {
+
+			@Override
+			public int compare(VolumePreview vp1, VolumePreview vp2) {
+				String vp1Name = vp1.getVolName().replaceAll("The ", "");
+				String vp2Name = vp2.getVolName().replaceAll("The ", "");
+				
+				return vp1Name.compareTo(vp2Name) * ((order) ? 1 : -1);
+			}
+		};
+		Collections.sort(volPreviews, compVP);
 	}
 
 	public static void sortIssuesByVolumeName(ArrayList<Issue> input, boolean order) throws JSONException {
@@ -503,13 +587,13 @@ public class LocalDB {
 		Collections.sort(input, comparatorIssue);
 	}
 
-	public static void sortIssuesByIssueID(ArrayList<Issue> input, boolean order) throws JSONException {
+	public static void sortIssuesByIssueNum(ArrayList<Issue> input, boolean order) throws JSONException {
 		final Comparator<Issue> comparatorIssue = new Comparator<Issue>() {
 			public int compare(Issue e1, Issue e2) {
-				int e1ID = Integer.valueOf(e1.getID());
-				int e2ID = Integer.valueOf(e2.getID());
+				double e1ID = checkDouble(e1.getIssueNum());
+				double e2ID = checkDouble(e2.getIssueNum());
 
-				return compareInteger(e1ID, e2ID) * ((order) ? 1 : -1);
+				return Double.compare(e1ID, e2ID) * ((order) ? 1 : -1);
 			}
 		};
 		Collections.sort(input, comparatorIssue);
@@ -700,9 +784,9 @@ public class LocalDB {
 		return resultIssue;
 	}
 
+	// TODO: remove this function, call Integer.compare() instead
 	public static int compareInteger(int inputA, int inputB) {
 		int result;
-
 		if (inputA == inputB) {
 			result = 0;
 		} else if (inputA < inputB) {
@@ -718,8 +802,8 @@ public class LocalDB {
 		final Comparator<Volume> comparatorVolume = new Comparator<Volume>() {
 
 			public int compare(Volume v1, Volume v2) {
-				String name1 = v1.getName().replace("The", "");
-				String name2 = v2.getName().replace("The", "");
+				String name1 = v1.getName().replace("The ", "");
+				String name2 = v2.getName().replace("The ", "");
 				int result = name1.compareTo(name2);
 
 				if (result == 0) {
@@ -732,30 +816,82 @@ public class LocalDB {
 		Collections.sort(volList, comparatorVolume);
 	}
 
+	/**
+	 * Function to delete the volume from the volume database and all related
+	 * issues from the issue table
+	 * 
+	 * @param inputID
+	 *            - the id of the volume to be deleted
+	 * @return boolean of whether all the actions succeded
+	 */
 	public static boolean deleteVolumeByID(String inputID) {
 
 		if (inputID.chars().allMatch(Character::isDigit)) {
 
 			try {
 				conn = DriverManager.getConnection(url);
-				stat = conn.createStatement();
 
-				String sql = "DELETE FROM volume WHERE id = " + "'" + inputID + "'";
-
+				String sql = "DELETE FROM VOLUME WHERE id = ?;";
 				PreparedStatement pre = conn.prepareStatement(sql);
+				pre.setString(1, inputID);
+				int count = pre.executeUpdate();
 
-				pre.executeUpdate(sql);
+				System.out.println("Trying to delete: " + ((count == 1) ? "Worked" : "Failed"));
 
-				return true;
+				// if the delete from the volume table fails, exit function with
+				// false value
+				if (count == 0) {
+					return false;
+				}
+
+				/**
+				 * Fetch all the issues that will be removed and then push to
+				 * the online database
+				 */
+				sql = "SELECT id FROM issue WHERE volume LIKE ?";
+				pre = conn.prepareStatement(sql);
+				pre.setString(1, "%" + inputID + "%");
+				ResultSet rs = pre.executeQuery();
+				ArrayList<String> delList = new ArrayList<>();
+
+				while (rs.next()) {
+					delList.add(rs.getString(1));
+				}
+				SQLQuery.removeIssues(delList);
+
+				/**
+				 * lets try to delete all the issues for this volume from the
+				 * issues table
+				 */
+				sql = "DELETE FROM issue WHERE VOLUME LIKE ?;";
+				pre = conn.prepareStatement(sql);
+				pre.setString(1, "%" + inputID + "%");
+
+				count = pre.executeUpdate();
+				System.out.println("number of issues deleted: " + count);
+
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				System.err.println("failed on volume delete attempt: " + inputID);
+				try {
+					System.err.println(stat.getWarnings());
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				e.printStackTrace();
 			}
-
 		}
 		return false;
 	}
 
+	/**
+	 * Removes this issue from the local database, will not remove from any gui
+	 * items or update runtime lists
+	 * 
+	 * @param inputID
+	 *            - the id of the issue to delete
+	 * @return boolean of whether the sql call worked
+	 */
 	public static boolean deleteIssueByID(String inputID) {
 
 		if (inputID.chars().allMatch(Character::isDigit)) {
@@ -764,15 +900,25 @@ public class LocalDB {
 				conn = DriverManager.getConnection(url);
 				stat = conn.createStatement();
 
-				String sql = "DELETE FROM issue WHERE id = '" + inputID + "';";
-
+				String sql = "DELETE FROM issue WHERE id = ?;";
 				PreparedStatement pre = conn.prepareStatement(sql);
+				pre.setString(1, inputID);
+				if (pre.executeUpdate() == 0) {
+					System.err.println("Failed to delete " + inputID);
+					return false;
+				} else {
+					System.out.println("Deleted " + inputID);
+				}
 
-				pre.executeUpdate(sql);
+				/**
+				 * delete the issue remotely
+				 */
+				ArrayList<String> delList = new ArrayList<>();
+				delList.add(inputID);
+				SQLQuery.removeIssues(delList);
 
-				return true;
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				System.err.println("SQLException trying to delete volume by id: " + inputID);
 				e.printStackTrace();
 			}
 
@@ -819,6 +965,11 @@ public class LocalDB {
 		return false;
 	}
 
+	/**
+	 * Fetches and builds all issues
+	 * 
+	 * @return ArrayList<Issue> of every issue
+	 */
 	public static String[] getAllIDs() {
 		ArrayList<String> iList = new ArrayList<String>();
 		try {
@@ -847,6 +998,47 @@ public class LocalDB {
 		if (iList.size() == 0)
 			return null;
 		return iList.toArray(new String[iList.size()]);
+	}
+
+	/**
+	 * Checks if string is an integer and handles exception by returning
+	 * MIN_VALUE
+	 * 
+	 * @param s
+	 *            the string to check
+	 * @return Integer.MIN_VALUE on invalid, number on valid
+	 */
+	public static int checkInt(String s) {
+		int val = Integer.MIN_VALUE;
+		try {
+			val = Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			System.out.println("Failed to convert " + s);
+		}
+		return val;
+	}
+
+	/**
+	 * Checks if string is an double and handles exception by returning
+	 * MIN_VALUE
+	 * 
+	 * @param s
+	 *            the string to check
+	 * @return Double.MIN_VALUE on invalid, number on valid
+	 */
+	public static double checkDouble(String s) {
+		double val = Double.MIN_NORMAL;
+		try {
+			val = Double.parseDouble(s);
+		} catch (NumberFormatException e) {
+			if (s.contains(".")) {
+				String temp = s.split(".")[0];
+				val = checkDouble(temp);
+				System.out.println(s + " is not a Double, checking " + temp);
+			}
+			System.out.println("could not convert " + s);
+		}
+		return val;
 	}
 
 }
